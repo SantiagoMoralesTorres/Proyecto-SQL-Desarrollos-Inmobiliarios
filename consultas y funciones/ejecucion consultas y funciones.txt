@@ -1,0 +1,1476 @@
+mysql> prompt [\\\D] (\d) ~>
+PROMPT set to '[\\\D] (\d) ~>'
+[\Thu May 22 14:16:30 2025] (desarrollos_inmobiliarios_db) ~>USE desarrollos_inmobiliarios_db;
+Database changed
+[\Thu May 22 14:16:50 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:50 2025] (desarrollos_inmobiliarios_db) ~>/*
+   /*> **************************
+   /*> *       CONSULTA 1       *
+   /*> **************************
+   /*> */
+[\Thu May 22 14:16:50 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:50 2025] (desarrollos_inmobiliarios_db) ~>/*Obtener la cantidad total de propiedades que se tienen registradas por desarrollo,
+   /*> así como la cantidad de propiedades que se han logrado vender y/o rentar por desarrollo, 
+   /*> y la proporción entre las propiedades vendidas y/o rentadas y el total de propiedades.
+   /*> 
+   /*> Esta consulta nos permite visualizar que desarrollos han logrado completar el objetivo
+   /*> de comercializar todas sus propiedades, cuáles están cerca de lograrlo, y
+   /*> cuáles desarrollos siguen en el proceso de comercialización.*/
+[\Thu May 22 14:16:50 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:50 2025] (desarrollos_inmobiliarios_db) ~>SELECT *,
+    -> CONCAT(ROUND(propiedades_vendidas_rentadas/propiedades_totales*100,2),'%') AS avance_comercial
+    -> FROM(
+    ->     SELECT d.id_desarrollo,d.nombre,
+    ->           (SELECT COUNT(*) 
+    ->             FROM propiedades p 
+    ->             WHERE p.id_desarrollo = d.id_desarrollo
+    ->           ) AS propiedades_totales,
+    ->           (SELECT COUNT(*) 
+    ->             FROM propiedades p 
+    ->             WHERE p.id_desarrollo = d.id_desarrollo 
+    ->             AND p.estado IN ('Vendida', 'Rentada')
+    ->           ) AS propiedades_vendidas_rentadas
+    ->     FROM desarrollos d
+    ->     ) AS R
+    -> ORDER BY propiedades_vendidas_rentadas/propiedades_totales*100 DESC,
+    ->          propiedades_totales DESC;
++---------------+-------------------------------+---------------------+-------------------------------+------------------+
+| id_desarrollo | nombre                        | propiedades_totales | propiedades_vendidas_rentadas | avance_comercial |
++---------------+-------------------------------+---------------------+-------------------------------+------------------+
+|            71 | Torre Las Palmas              |                   5 |                             5 | 100.00%          |
+|             8 | Plaza Poniente                |                   3 |                             3 | 100.00%          |
+|             9 | Zona Industrial Norte         |                   2 |                             2 | 100.00%          |
+|            36 | Parque Eco del Valle          |                   2 |                             2 | 100.00%          |
+|             4 | Torre Corporativa Pedregal    |                   1 |                             1 | 100.00%          |
+|            72 | Zona Industrial Poniente      |                   1 |                             1 | 100.00%          |
+|            88 | Zona Cavernas                 |                   1 |                             1 | 100.00%          |
+|            81 | Altavista La Cima             |                   6 |                             5 | 83.33%           |
+|            61 | Altos Omega                   |                   6 |                             5 | 83.33%           |
+|             1 | Zona Industrial del Valle     |                   5 |                             4 | 80.00%           |
+|            53 | Torre Andrómeda               |                   5 |                             4 | 80.00%           |
+|            47 | Torre Cafetales               |                   5 |                             4 | 80.00%           |
+|            66 | Torre Corporativa San Lazaro  |                   8 |                             6 | 75.00%           |
+|            20 | Residencial Lux               |                   4 |                             3 | 75.00%           |
+|            97 | Plaza Quorum                  |                   4 |                             3 | 75.00%           |
+|            26 | Centro del Sol                |                   4 |                             3 | 75.00%           |
+|            70 | Edificio La Cima              |                   4 |                             3 | 75.00%           |
+|            99 | Centro de Negocios Pedregal   |                   4 |                             3 | 75.00%           |
+|            24 | Edificio Quorum               |                  11 |                             8 | 72.73%           |
+|            80 | Torre Express                 |                   7 |                             5 | 71.43%           |
+|            50 | Plaza Sur                     |                  10 |                             7 | 70.00%           |
+|            30 | Torre Corporativa Las Fuentes |                  12 |                             8 | 66.67%           |
+|            43 | Zona del Sol                  |                   9 |                             6 | 66.67%           |
+|            41 | Plaza del Sol                 |                   6 |                             4 | 66.67%           |
+|            74 | Edificio Norte 78             |                   6 |                             4 | 66.67%           |
+|             5 | Parque Logístico del Valle    |                   6 |                             4 | 66.67%           |
+|            12 | Torre Bernal                  |                   6 |                             4 | 66.67%           |
+|            68 | Centro de Negocios del Sol    |                   6 |                             4 | 66.67%           |
+|            11 | Altavista Quorum              |                   3 |                             2 | 66.67%           |
+|            69 | Puerta Las Fuentes            |                   3 |                             2 | 66.67%           |
+|            60 | Distrito Las Americas         |                   3 |                             2 | 66.67%           |
+|            92 | Torre Quorum                  |                   3 |                             2 | 66.67%           |
+|            48 | Zona Industrial Coltongo      |                   3 |                             2 | 66.67%           |
+|            67 | Edificio Somalia              |                   3 |                             2 | 66.67%           |
+|            95 | Distrito del Valle            |                   8 |                             5 | 62.50%           |
+|            84 | Edificio Colorines Sur        |                   5 |                             3 | 60.00%           |
+|             3 | Edificio Castillo del Sol     |                   5 |                             3 | 60.00%           |
+|            22 | Torre Corporativa Magdalena   |                   5 |                             3 | 60.00%           |
+|            14 | Puerta Norte II               |                  12 |                             7 | 58.33%           |
+|            96 | Zona Industrial Poniente 146  |                   7 |                             4 | 57.14%           |
+|            13 | Centro Pedregal               |                   7 |                             4 | 57.14%           |
+|            87 | Zona Poniente                 |                   7 |                             4 | 57.14%           |
+|            46 | Puerta del Valle              |                  11 |                             6 | 54.55%           |
+|             6 | Plaza Pedregal                |                  10 |                             5 | 50.00%           |
+|            10 | Puerta Andrómeda              |                   8 |                             4 | 50.00%           |
+|            62 | Parque Logístico Pedregal     |                   8 |                             4 | 50.00%           |
+|            31 | Torre Corporativa Quorum      |                   8 |                             4 | 50.00%           |
+|            52 | Parque Las Palmas             |                   6 |                             3 | 50.00%           |
+|            38 | Distrito Oriente              |                   6 |                             3 | 50.00%           |
+|           100 | Edificio Monteverde           |                   6 |                             3 | 50.00%           |
+|            55 | Plaza Oriente                 |                   4 |                             2 | 50.00%           |
+|            59 | Altos Oriente                 |                   4 |                             2 | 50.00%           |
+|            89 | Torre Corporativa Norte       |                   4 |                             2 | 50.00%           |
+|            34 | Parque Logístico Luna Azul    |                   4 |                             2 | 50.00%           |
+|            93 | Edificio Norte                |                   4 |                             2 | 50.00%           |
+|            64 | Centro Vía Magna              |                   4 |                             2 | 50.00%           |
+|            56 | Zona Industrial Las Fuentes   |                   4 |                             2 | 50.00%           |
+|            78 | Altos Monteverde              |                   2 |                             1 | 50.00%           |
+|            51 | Zona Vía Magna                |                   2 |                             1 | 50.00%           |
+|            42 | Torre Jardines Las Fuentes    |                   2 |                             1 | 50.00%           |
+|            85 | Residencial Oriente           |                   9 |                             4 | 44.44%           |
+|            91 | Plaza Vía Magna               |                   7 |                             3 | 42.86%           |
+|            45 | Jardines Quorum               |                   7 |                             3 | 42.86%           |
+|            19 | Parque Quorum                 |                  10 |                             4 | 40.00%           |
+|            44 | Altos Las Fuentes             |                   5 |                             2 | 40.00%           |
+|            18 | Torre Omega                   |                   5 |                             2 | 40.00%           |
+|            73 | Torre La Cima                 |                   5 |                             2 | 40.00%           |
+|            98 | Altos Lux                     |                   8 |                             3 | 37.50%           |
+|            27 | Zona Industrial Sal de Mar    |                   8 |                             3 | 37.50%           |
+|             7 | Centro del Valle              |                   9 |                             3 | 33.33%           |
+|            25 | Zona Industrial Express       |                   6 |                             2 | 33.33%           |
+|            23 | Torre Corporativa Alto Mundo  |                   3 |                             1 | 33.33%           |
+|            49 | Residencial Norte             |                   3 |                             1 | 33.33%           |
+|            28 | Plaza Viveros                 |                   3 |                             1 | 33.33%           |
+|            37 | Centro Poniente               |                   3 |                             1 | 33.33%           |
+|            54 | Zona Guevara                  |                   3 |                             1 | 33.33%           |
+|            83 | Residencial Las Palmas        |                   7 |                             2 | 28.57%           |
+|            82 | Centro Express                |                   4 |                             1 | 25.00%           |
+|            58 | Plaza Norte II                |                   4 |                             1 | 25.00%           |
+|            17 | Parque Eco Industrial         |                   4 |                             1 | 25.00%           |
+|            35 | Parque Logístico Lux          |                   4 |                             1 | 25.00%           |
+|            29 | Edificio Armas                |                   4 |                             1 | 25.00%           |
+|            90 | Zona Industrial La Cima       |                   4 |                             1 | 25.00%           |
+|            65 | Altavista Sur                 |                   4 |                             1 | 25.00%           |
+|            40 | Plaza Tres Leches             |                   4 |                             1 | 25.00%           |
+|            15 | Zona Norte                    |                   4 |                             1 | 25.00%           |
+|            33 | Residencial Limbo             |                   5 |                             1 | 20.00%           |
+|             2 | Plaza Las Fuentes             |                   5 |                             1 | 20.00%           |
+|            94 | Distrito Express              |                   6 |                             1 | 16.67%           |
+|            21 | Edificio Las Fuentes          |                   6 |                             0 | 0.00%            |
+|            75 | Jardines Lux                  |                   4 |                             0 | 0.00%            |
+|            32 | Plaza Lux                     |                   4 |                             0 | 0.00%            |
+|            76 | Puerta Omega                  |                   3 |                             0 | 0.00%            |
+|            86 | Distrito Las Palmas           |                   3 |                             0 | 0.00%            |
+|            39 | Centro Industrial             |                   2 |                             0 | 0.00%            |
+|            77 | Altos Sur                     |                   1 |                             0 | 0.00%            |
+|            57 | Parque Logístico Norte        |                   1 |                             0 | 0.00%            |
+|            63 | Torre Corporativa La Cima     |                   1 |                             0 | 0.00%            |
+|            79 | Residencial Andrómeda         |                   1 |                             0 | 0.00%            |
+|            16 | Parque Pedregal               |                   1 |                             0 | 0.00%            |
++---------------+-------------------------------+---------------------+-------------------------------+------------------+
+100 rows in set (0.01 sec)
+
+[\Thu May 22 14:16:51 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:51 2025] (desarrollos_inmobiliarios_db) ~>/*
+   /*> **************************
+   /*> *       CONSULTA 2       *
+   /*> **************************
+   /*> */
+[\Thu May 22 14:16:51 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:51 2025] (desarrollos_inmobiliarios_db) ~>/*Obtener un resumen de todos los agentes y la cantidad de contratos que han cerrado,
+   /*> así como la cantidad total de ingresos que han generado dichos contratos a la empresa.
+   /*> 
+   /*> Esta consulta nos permite visualizar cuales son los agentes que han tenido una mayor 
+   /*> participación en la comercialización en las propiedades, es decir, aquellos agentes
+   /*> que han tenido mayor rendimiento respecto al cierre de contratos. Con esta información,
+   /*> la empresa podría recomendar a los agentes más eficientes para futuros cierres de contratos 
+   /*> importantes.*/
+[\Thu May 22 14:16:51 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:51 2025] (desarrollos_inmobiliarios_db) ~>SELECT a.id_agente,
+    ->        CONCAT_WS(' ',a.nombre,a.apellido_paterno,a.apellido_materno) AS nombre_completo_agente,
+    ->        COUNT(c.id_propiedad) AS contratos_firmados,
+    ->        CONCAT('$ ',FORMAT(SUM(c.precio_final),2)) AS ingresos_totales_generados
+    -> FROM contratos c 
+    -> RIGHT JOIN agentes a ON c.id_agente = a.id_agente
+    -> GROUP BY a.id_agente
+    -> ORDER BY SUM(precio_final) DESC;
++-----------+----------------------------------+--------------------+----------------------------+
+| id_agente | nombre_completo_agente           | contratos_firmados | ingresos_totales_generados |
++-----------+----------------------------------+--------------------+----------------------------+
+|        35 | Abelardo Flores Castañeda        |                  6 | $ 46,228,215.28            |
+|        16 | Adela Acevedo Tafoya             |                  5 | $ 44,313,997.36            |
+|        90 | José Emilio Torres Alonzo        |                  7 | $ 43,435,404.91            |
+|        24 | José María Nájera Treviño        |                  8 | $ 43,038,704.73            |
+|        65 | Agustín de la Garza Valentín     |                  6 | $ 34,583,498.84            |
+|        15 | Abel Arellano Saldaña            |                  4 | $ 30,779,312.41            |
+|         2 | Óscar Zarate Contreras           |                  4 | $ 30,436,360.91            |
+|        57 | Amador Casas Olivo               |                  4 | $ 29,565,677.56            |
+|        55 | Felix Saiz Garay                 |                  4 | $ 27,961,290.28            |
+|        11 | Zacarías Figueroa Baeza          |                  5 | $ 27,759,083.18            |
+|        20 | Evelio Arriaga Manzanares        |                  4 | $ 26,761,145.25            |
+|        56 | María Teresa Terán Ibarra        |                  4 | $ 26,502,710.65            |
+|        51 | Vanesa Aguilar Cintrón           |                  4 | $ 26,206,106.74            |
+|        12 | Violeta Munguía Oquendo          |                  4 | $ 25,808,008.24            |
+|        29 | Israel Baca Aranda               |                  4 | $ 24,103,557.37            |
+|        88 | Cristian Ojeda Amador            |                  5 | $ 23,209,968.72            |
+|        78 | Nicolás Armas Vaca               |                  4 | $ 22,888,623.54            |
+|        37 | Carmen Garica Mata               |                  3 | $ 22,531,327.13            |
+|        21 | Mauro Carrillo Salinas           |                  4 | $ 22,189,805.30            |
+|        18 | Sandra Saldaña Reynoso           |                  3 | $ 21,974,746.62            |
+|        39 | Lorena Mayorga Quintana          |                  3 | $ 21,444,832.61            |
+|        66 | Socorro Arce Salgado             |                  3 | $ 21,036,422.54            |
+|         5 | Pascual Villagómez Loera         |                  4 | $ 20,135,103.91            |
+|        10 | Angélica Madera Montez           |                  4 | $ 20,091,479.80            |
+|        76 | Alberto Otero Rojo               |                  3 | $ 20,034,717.60            |
+|        32 | Susana Benítez Armendáriz        |                  2 | $ 19,673,942.26            |
+|        84 | Perla Saldivar Rolón             |                  4 | $ 19,534,125.48            |
+|        13 | Graciela Muñoz Villanueva        |                  3 | $ 19,365,392.25            |
+|        75 | Alta  Gracia Salcedo Alba        |                  5 | $ 19,252,114.18            |
+|        82 | Julio Ávila Zapata               |                  3 | $ 19,248,588.63            |
+|        62 | Renato Tirado Baeza              |                  3 | $ 18,309,354.58            |
+|         7 | Miguel Munguía Borrego           |                  3 | $ 18,209,457.96            |
+|        41 | Abraham Gamez Lugo               |                  4 | $ 17,961,868.85            |
+|        70 | David Abreu Cisneros             |                  2 | $ 17,016,139.39            |
+|        31 | Mayte Miranda Castellanos        |                  2 | $ 16,981,243.11            |
+|        28 | Dulce Madrid Sarabia             |                  3 | $ 16,893,108.77            |
+|        46 | Silvia Galván Alvarez            |                  2 | $ 16,805,790.27            |
+|        91 | Laura Prieto Cantú               |                  4 | $ 16,750,058.04            |
+|       100 | Ana López Ríos                   |                  2 | $ 16,627,925.94            |
+|        59 | Araceli Cervántez Fonseca        |                  3 | $ 16,380,937.27            |
+|         4 | Claudia Tórrez Ramos             |                  2 | $ 16,134,739.54            |
+|        40 | Lucía Preciado Delgado           |                  3 | $ 16,093,257.13            |
+|        92 | Soledad Muñiz Rojas              |                  3 | $ 15,973,869.35            |
+|        14 | Zacarías Vanegas Pedroza         |                  2 | $ 15,464,276.75            |
+|        98 | Carmen Pérez González            |                  2 | $ 15,131,532.75            |
+|        87 | Adán Curiel Vergara              |                  3 | $ 14,664,641.53            |
+|        22 | Abril Calvillo Orta              |                  3 | $ 14,628,338.51            |
+|        50 | Susana Sevilla Trujillo          |                  3 | $ 14,616,495.76            |
+|        60 | Rubén Muñoz Sáenz                |                  3 | $ 14,012,997.10            |
+|        69 | Jesús Curiel Corral              |                  3 | $ 13,633,667.44            |
+|        67 | Hugo Tamez Lomeli                |                  2 | $ 13,255,213.65            |
+|        25 | Santiago Gaona Aguirre           |                  3 | $ 13,132,902.46            |
+|        49 | Aldo González Bravo              |                  3 | $ 13,113,220.09            |
+|        26 | Noemí Arenas Barraza             |                  2 | $ 12,248,320.17            |
+|        99 | Fernando Silva Aguirre           |                  2 | $ 12,228,039.62            |
+|        42 | Genaro Arevalo Abrego            |                  2 | $ 12,079,072.76            |
+|        95 | María del Carmen Mendez Ortiz    |                  3 | $ 12,045,188.57            |
+|        45 | Rafael Luna Moreno               |                  2 | $ 11,555,294.49            |
+|        38 | Lucía Luna Urbina                |                  3 | $ 11,440,907.23            |
+|        85 | Noemí Llamas Arce                |                  2 | $ 11,376,523.13            |
+|        80 | Cristobal Merino Cervántez       |                  2 | $ 11,347,288.23            |
+|         3 | Nicolás Hurtado Bañuelos         |                  2 | $ 11,309,796.84            |
+|        94 | Raúl Ramírez Gallegos            |                  2 | $ 9,751,968.82             |
+|         8 | AnUel Campos Concepción          |                  1 | $ 9,365,712.03             |
+|        48 | Ofelia Mata Ceballos             |                  2 | $ 8,804,129.13             |
+|        53 | Hugo Sierra Olivo                |                  3 | $ 8,757,362.43             |
+|        19 | José Carlos Cabán Mireles        |                  3 | $ 8,491,902.16             |
+|        23 | Jorge Carrero Barela             |                  1 | $ 8,338,049.97             |
+|        71 | Olga de la O Barajas             |                  2 | $ 8,199,058.50             |
+|        61 | Elias Mateo Lovato               |                  1 | $ 7,823,594.39             |
+|        63 | Wilfrido Pichardo Chacón         |                  2 | $ 7,810,727.74             |
+|        52 | Irene Tello Reséndez             |                  1 | $ 7,758,537.15             |
+|        81 | José María Sepúlveda Nájera      |                  3 | $ 7,636,723.05             |
+|        72 | Francisco Javier Terrazas Soto   |                  2 | $ 7,549,774.11             |
+|        86 | Alvaro Gastélum Guajardo         |                  1 | $ 7,336,680.36             |
+|         1 | Judith Peres Arevalo             |                  1 | $ 7,249,287.36             |
+|        58 | José Luis Rosado Llamas          |                  2 | $ 7,210,817.06             |
+|        47 | Timoteo Loya Gaytán              |                  1 | $ 6,092,683.00             |
+|        64 | María Teresa Arguello Vallejo    |                  2 | $ 6,061,604.44             |
+|        54 | María Luisa Quiñónez Carvajal    |                  2 | $ 5,967,093.30             |
+|        43 | Frida Magaña Tejeda              |                  1 | $ 5,527,824.19             |
+|        89 | Victoria Montoya Caldera         |                  4 | $ 5,507,454.53             |
+|        77 | Alberto Mascareñas Orozco        |                  1 | $ 5,242,341.02             |
+|        27 | Aldo Vela Bustamante             |                  1 | $ 3,283,224.39             |
+|        33 | Camila Concepción Polanco        |                  1 | $ 3,054,173.19             |
+|        83 | Alta  Gracia Rendón Jaime        |                  1 | $ 3,011,095.60             |
+|        79 | Noemí Reyes Correa               |                  1 | $ 2,630,880.02             |
+|        30 | Benito Rodríguez Coronado        |                  1 | $ 2,505,013.99             |
+|         9 | Camilo Arce Zelaya               |                  1 | $ 2,210,516.33             |
+|        44 | Bernardo Partida Tórrez          |                  2 | $ 1,672,310.80             |
+|        96 | Margarita Reynoso Flores         |                  1 | $ 1,267,249.04             |
+|        36 | Emilio Nájera Meza               |                  0 | NULL                       |
+|         6 | Ángela Burgos Cedillo            |                  0 | NULL                       |
+|        17 | María Cristina Carrillo Hidalgo  |                  0 | NULL                       |
+|        34 | Irma Hernádez Berríos            |                  0 | NULL                       |
+|        73 | Lilia Gil Alemán                 |                  0 | NULL                       |
+|        97 | Víctor Vargas López              |                  0 | NULL                       |
+|        74 | Eva Rascón Saucedo               |                  0 | NULL                       |
+|        68 | Alejandra Laboy Aragón           |                  0 | NULL                       |
+|        93 | Gabriel Olvera Fuentes           |                  0 | NULL                       |
++-----------+----------------------------------+--------------------+----------------------------+
+100 rows in set (0.01 sec)
+
+[\Thu May 22 14:16:51 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:51 2025] (desarrollos_inmobiliarios_db) ~>/*
+   /*> **************************
+   /*> *       CONSULTA 3       *
+   /*> **************************
+   /*> */
+[\Thu May 22 14:16:51 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:51 2025] (desarrollos_inmobiliarios_db) ~>/*Mostrar a los clientes que han firmado al menos un contrato y cuántos contratos han firmado, 
+   /*> así como el número total de interacciones que tuvieron esos clientes con los agentes, y el promedio
+   /*> de interacciones por contrato firmado.
+   /*> 
+   /*> Esta consulta ayuda a encontrar los clientes más relevantes que tiene la empresa, 
+   /*> así como que tanto necesitan los agentes interactuar con cada uno de ellos para conseguir
+   /*> que firmen un contrato, es decir, si son fáciles de convencer o no. De este modo, la empresa
+   /*> puede recomendar otras propiedades a clientes frecuentes o a aquellos que son fáciles de
+   /*> convencer.*/
+[\Thu May 22 14:16:51 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:51 2025] (desarrollos_inmobiliarios_db) ~>SELECT *,ROUND(total_interacciones/contratos_firmados,2) AS interacciones_promedio
+    -> FROM(
+    ->     SELECT cl.id_cliente,
+    ->            CONCAT_WS(' ',cl.nombre,cl.apellido_paterno,cl.apellido_materno) AS nombre_completo_cliente,
+    ->           (SELECT COUNT(c.id_contrato)
+    ->               FROM contratos c
+    ->               WHERE c.id_cliente = cl.id_cliente) 
+    ->               AS contratos_firmados,
+    ->           (SELECT COUNT(i.num_interaccion)
+    ->               FROM interacciones i
+    ->               WHERE i.id_cliente = cl.id_cliente) 
+    ->               AS total_interacciones
+    ->     FROM clientes cl
+    ->     ) AS R
+    -> WHERE contratos_firmados > 0
+    -> ORDER BY interacciones_promedio ASC, contratos_firmados DESC;   
++------------+------------------------------------+--------------------+---------------------+------------------------+
+| id_cliente | nombre_completo_cliente            | contratos_firmados | total_interacciones | interacciones_promedio |
++------------+------------------------------------+--------------------+---------------------+------------------------+
+|         67 | Cristal Sáenz Hernádez             |                  5 |                   5 |                   1.00 |
+|         49 | Verónica de la Rosa Montemayor     |                  4 |                   4 |                   1.00 |
+|         59 | Gabriel Bétancourt Mesa            |                  4 |                   4 |                   1.00 |
+|         63 | Hermelinda Escalante Camacho       |                  4 |                   4 |                   1.00 |
+|         93 | Elvira Casanova Mora               |                  4 |                   4 |                   1.00 |
+|          1 | Bruno Escamilla Rosario            |                  4 |                   4 |                   1.00 |
+|         87 | Elena Montalvo Puga                |                  4 |                   4 |                   1.00 |
+|         22 | Gabino Quintana Mena               |                  3 |                   3 |                   1.00 |
+|          3 | Leonor Centeno Valencia            |                  3 |                   3 |                   1.00 |
+|         90 | Cristal Pedroza Amador             |                  3 |                   3 |                   1.00 |
+|         29 | Minerva Montez Cortés              |                  2 |                   2 |                   1.00 |
+|         32 | Diana Barreto Caraballo            |                  2 |                   2 |                   1.00 |
+|         97 | Gilberto Montemayor Camarillo      |                  1 |                   1 |                   1.00 |
+|         98 | Delia Vega Rentería                |                  1 |                   1 |                   1.00 |
+|         25 | Paulina Velázquez Solís            |                  1 |                   1 |                   1.00 |
+|         40 | Ivonne Miranda Regalado            |                  1 |                   1 |                   1.00 |
+|         75 | Hermelinda Padrón de León          |                  5 |                   6 |                   1.20 |
+|         76 | Isabel Sevilla Pineda              |                  4 |                   5 |                   1.25 |
+|         13 | Rubén Carrero Ramón                |                  3 |                   4 |                   1.33 |
+|         15 | Humberto Olmos Ayala               |                  3 |                   4 |                   1.33 |
+|          5 | Isabela Aguayo Mejía               |                  4 |                   6 |                   1.50 |
+|         34 | Lucía Véliz Solano                 |                  2 |                   3 |                   1.50 |
+|         43 | Juan Carlos Godínez Rivas          |                  2 |                   3 |                   1.50 |
+|         33 | Isabela Hernández Pantoja          |                  5 |                   8 |                   1.60 |
+|         46 | Emilia Barreto Salas               |                  3 |                   5 |                   1.67 |
+|         21 | Pedro Orosco Barraza               |                  3 |                   5 |                   1.67 |
+|         14 | Eloy Moreno Palomo                 |                  4 |                   7 |                   1.75 |
+|          4 | Reynaldo Rodarte Loera             |                  4 |                   7 |                   1.75 |
+|         53 | Abel Apodaca Armas                 |                  6 |                  11 |                   1.83 |
+|         48 | Soledad Puga Lomeli                |                  6 |                  12 |                   2.00 |
+|         31 | Ramiro Ocampo Curiel               |                  4 |                   8 |                   2.00 |
+|         45 | Noemí Echeverría Fajardo           |                  4 |                   8 |                   2.00 |
+|         82 | Ofelia Pedraza Salas               |                  4 |                   8 |                   2.00 |
+|         95 | Francisca Gallardo Terán           |                  4 |                   8 |                   2.00 |
+|         80 | Blanca Baca Mayorga                |                  3 |                   6 |                   2.00 |
+|         78 | Silvia Dueñas Jurado               |                  2 |                   4 |                   2.00 |
+|         51 | Cristobal Roque Cotto              |                  2 |                   4 |                   2.00 |
+|         42 | Daniel Rivero Holguín              |                  1 |                   2 |                   2.00 |
+|         58 | Leonor Candelaria Laureano         |                  4 |                   9 |                   2.25 |
+|         61 | Trinidad Tórrez Espinal            |                  7 |                  16 |                   2.29 |
+|         17 | Aurora Villalobos Ornelas          |                  3 |                   7 |                   2.33 |
+|         36 | Gabriela Carbajal Olmos            |                  3 |                   7 |                   2.33 |
+|          2 | Carlos Pantoja Olmos               |                  6 |                  15 |                   2.50 |
+|         38 | Débora Moreno Ponce                |                  6 |                  16 |                   2.67 |
+|         55 | Aldo Uribe Guzmán                  |                  4 |                  11 |                   2.75 |
+|         27 | José Eduardo Bueno Godínez         |                  5 |                  15 |                   3.00 |
+|         74 | Marisol Rubio Cisneros             |                  4 |                  12 |                   3.00 |
+|         16 | Zoé Burgos Blanco                  |                  3 |                   9 |                   3.00 |
+|         77 | Jorge Luis Garza Casárez           |                  2 |                   6 |                   3.00 |
+|         73 | Abel Esparza Madrid                |                  2 |                   6 |                   3.00 |
+|         47 | Elvia Lucero Peralta               |                  2 |                   6 |                   3.00 |
+|         18 | Francisco Javier Saldivar Madrigal |                  2 |                   6 |                   3.00 |
+|         60 | Rosalia Benavides Pantoja          |                  2 |                   6 |                   3.00 |
+|         94 | Zoé Vargas Haro                    |                  2 |                   6 |                   3.00 |
+|         28 | Antonio Murillo Espinosa           |                  1 |                   3 |                   3.00 |
+|         56 | Leticia Nava Limón                 |                  4 |                  13 |                   3.25 |
+|         24 | Barbara Zamora Ochoa               |                  4 |                  13 |                   3.25 |
+|         30 | Mariano Vega Briones               |                  3 |                  10 |                   3.33 |
+|         12 | Fabiola Terán Villagómez           |                  3 |                  10 |                   3.33 |
+|         66 | Dulce María Villagómez Alvarado    |                  4 |                  14 |                   3.50 |
+|         54 | Benito Ruiz Prieto                 |                  2 |                   7 |                   3.50 |
+|         50 | Miriam Barrientos Camacho          |                  2 |                   7 |                   3.50 |
+|          6 | Arturo Blanco Mata                 |                  2 |                   7 |                   3.50 |
+|         62 | Ruby Alejandro Escobedo            |                  3 |                  11 |                   3.67 |
+|         85 | Benito Caldera Ocampo              |                  3 |                  12 |                   4.00 |
+|         44 | Flavio Montañez Laboy              |                  2 |                   8 |                   4.00 |
+|         20 | Estefanía Delgado Reyes            |                  1 |                   4 |                   4.00 |
+|         99 | Laura Palomino Leyva               |                  1 |                   4 |                   4.00 |
+|         84 | Carlos Rosales Guzmán              |                  1 |                   4 |                   4.00 |
+|         71 | Angélica Chapa Rivero              |                  1 |                   4 |                   4.00 |
+|         81 | Alfredo Ybarra Garica              |                  1 |                   4 |                   4.00 |
+|         72 | Rodrigo Zedillo Rael               |                  1 |                   4 |                   4.00 |
+|          9 | Federico Trejo Alva                |                  5 |                  21 |                   4.20 |
+|         39 | Eva Orozco Caldera                 |                  3 |                  13 |                   4.33 |
+|         70 | Abraham Roldán Palacios            |                  2 |                   9 |                   4.50 |
+|         64 | Ignacio Hinojosa Hernádez          |                  2 |                   9 |                   4.50 |
+|         89 | Gloria Anaya Palacios              |                  2 |                  10 |                   5.00 |
+|         83 | Karina Porras Ceballos             |                  2 |                  10 |                   5.00 |
+|         91 | Rosa de la Garza Borrego           |                  2 |                  10 |                   5.00 |
+|         41 | Isaac Franco Marrero               |                  1 |                   5 |                   5.00 |
+|         88 | Jaime Meraz de la O                |                  3 |                  16 |                   5.33 |
+|          7 | Angélica Collazo Cortés            |                  1 |                   6 |                   6.00 |
+|         68 | Clara Colunga Barela               |                  1 |                   6 |                   6.00 |
+|         65 | Linda Vaca Briones                 |                  1 |                   6 |                   6.00 |
+|         96 | Conchita Nieves Trejo              |                  2 |                  14 |                   7.00 |
+|         11 | Yuridia Delgadillo Quintanilla     |                  1 |                   7 |                   7.00 |
+|         37 | Ivonne Ibarra Cardona              |                  1 |                   7 |                   7.00 |
+|         26 | Norma Galindo Aguilar              |                  1 |                   7 |                   7.00 |
+|         35 | José Carlos Colunga Rascón         |                  1 |                   9 |                   9.00 |
+|          8 | Martha Sepúlveda Montaño           |                  1 |                  10 |                  10.00 |
+|        100 | Sonia Arreola Feliciano            |                  1 |                  10 |                  10.00 |
+|         92 | Alfonso Marrero Ramírez            |                  1 |                  12 |                  12.00 |
+|         52 | Uriel Lozada Garay                 |                  1 |                  12 |                  12.00 |
+|         19 | Ariadna Leiva Zamudio              |                  1 |                  12 |                  12.00 |
++------------+------------------------------------+--------------------+---------------------+------------------------+
+94 rows in set (0.01 sec)
+
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>/*
+   /*> **************************
+   /*> *       CONSULTA 4       *
+   /*> **************************
+   /*> */
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>/*Mostrar la cantidad de propiedades registradas por estado, así como la cantidad
+   /*> de propiedades que se han logrado vender o rentar, la proporción entre las propiedades
+   /*> vendidas y/o rentadas respecto al total de propiedades, y el total de ingresos generados.
+   /*> 
+   /*> Esta consulta permite destacar los estados que han tenido un mayor crecimiento comercial
+   /*> para la empresa, lo cual puede contribuir a ser más estrategicos respecto a la locación de
+   /*> sus futuros desarrollos/propiedades.*/
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>SELECT *,
+    -> CONCAT(ROUND(propiedades_vendidas_rentadas/propiedades_totales*100,2),'%') AS avance_comercial
+    -> FROM (
+    ->   SELECT e.nombre AS estado,
+    ->         COUNT(p.id_propiedad) AS propiedades_totales,
+    ->         COUNT(CASE WHEN p.estado IN ('Vendida','Rentada') THEN 1 END) AS propiedades_vendidas_rentadas,
+    ->         CONCAT('$ ',FORMAT(SUM(p.precio),2)) AS ingresos_totales
+    ->   FROM estados e
+    ->   JOIN municipios m ON m.clave_estado = e.clave_estado
+    ->   JOIN colonias c ON c.clave_municipio = m.clave_municipio
+    ->   JOIN direcciones d ON d.id_colonia = c.id_colonia
+    ->   LEFT JOIN propiedades p ON p.id_direccion = d.id_direccion
+    ->   GROUP BY e.nombre
+    ->   ORDER BY SUM(p.precio) DESC
+    -> ) AS R;
++---------------------+---------------------+-------------------------------+------------------+------------------+
+| estado              | propiedades_totales | propiedades_vendidas_rentadas | ingresos_totales | avance_comercial |
++---------------------+---------------------+-------------------------------+------------------+------------------+
+| Oaxaca              |                  37 |                            19 | $ 149,842,782.10 | 51.35%           |
+| Zacatecas           |                  26 |                            19 | $ 125,468,213.37 | 73.08%           |
+| Michoacán           |                  24 |                             9 | $ 109,551,133.52 | 37.50%           |
+| Yucatán             |                  24 |                            11 | $ 98,057,315.96  | 45.83%           |
+| Puebla              |                  22 |                            14 | $ 94,647,955.22  | 63.64%           |
+| Chihuahua           |                  21 |                            14 | $ 84,930,006.16  | 66.67%           |
+| San Luis Potosí     |                  18 |                            12 | $ 84,747,484.85  | 66.67%           |
+| Veracruz            |                  18 |                            10 | $ 72,726,520.40  | 55.56%           |
+| Campeche            |                  11 |                             8 | $ 70,923,499.65  | 72.73%           |
+| Estado de México    |                  18 |                            13 | $ 68,104,465.21  | 72.22%           |
+| Tlaxcala            |                  18 |                             7 | $ 67,518,668.44  | 38.89%           |
+| Guanajuato          |                  12 |                             7 | $ 66,041,124.94  | 58.33%           |
+| Tabasco             |                  18 |                            10 | $ 62,621,797.84  | 55.56%           |
+| Nuevo León          |                  15 |                             6 | $ 56,353,957.10  | 40.00%           |
+| Ciudad de Mexico    |                  16 |                             4 | $ 55,734,047.81  | 25.00%           |
+| Tamaulipas          |                  10 |                             5 | $ 55,512,681.67  | 50.00%           |
+| Nayarit             |                  16 |                             8 | $ 55,297,817.33  | 50.00%           |
+| Quintana Roo        |                  15 |                             5 | $ 54,649,453.93  | 33.33%           |
+| Querétaro           |                  13 |                             4 | $ 53,628,418.34  | 30.77%           |
+| Coahuila            |                  10 |                             4 | $ 49,862,852.37  | 40.00%           |
+| Baja California     |                  13 |                             5 | $ 49,434,777.44  | 38.46%           |
+| Sinaloa             |                  13 |                             9 | $ 49,303,039.56  | 69.23%           |
+| Aguascalientes      |                  13 |                             7 | $ 46,661,570.22  | 53.85%           |
+| Morelos             |                  12 |                             7 | $ 42,981,847.20  | 58.33%           |
+| Colima              |                  13 |                             7 | $ 42,936,513.06  | 53.85%           |
+| Jalisco             |                  12 |                             5 | $ 39,286,157.23  | 41.67%           |
+| Baja California Sur |                  11 |                             6 | $ 33,971,915.51  | 54.55%           |
+| Guerrero            |                  11 |                             4 | $ 32,330,671.97  | 36.36%           |
+| Hidalgo             |                   9 |                             5 | $ 32,169,345.10  | 55.56%           |
+| Durango             |                  10 |                             4 | $ 31,336,089.57  | 40.00%           |
+| Chiapas             |                  12 |                             4 | $ 27,427,011.84  | 33.33%           |
+| Sonora              |                   9 |                             4 | $ 22,544,039.86  | 44.44%           |
++---------------------+---------------------+-------------------------------+------------------+------------------+
+32 rows in set (0.02 sec)
+
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>/*
+   /*> **************************
+   /*> *       CONSULTA 5       *
+   /*> **************************
+   /*> */
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>/*Mostrar un resumen por tipo de desarrollo y por tipo de propiedad que
+   /*> detalle las propiedades totales, las propiedades vendidas y rentadas, los 
+   /*> ingresos generados por ventas y/o rentas, y la proporción entre las propiedades
+   /*> vendidas y/o rentadas y las propiedades totales.
+   /*> 
+   /*> Esta consulta muestra que tipo de construcciones son las que se han colocado
+   /*> más eficazmente en el mercado, así como destacar cuales son las que más ingresos
+   /*> le han generado a la empresa, por lo que la empresa podría tomar en consideración 
+   /*> llevar a cabo más construcciones de los tipos que están siendo más rentables.*/
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>SELECT *,
+    -> CONCAT(ROUND(propiedades_vendidas_rentadas/propiedades_totales*100,2),'%') AS avance_comercial
+    -> FROM(
+    ->   SELECT d.tipo AS tipo_desarrollo, p.tipo AS tipo_propiedad,
+    ->         COUNT(p.id_propiedad) AS propiedades_totales,
+    ->         COUNT(CASE WHEN p.estado IN ('Vendida','Rentada') THEN 1 END) AS propiedades_vendidas_rentadas,
+    ->         CONCAT('$ ', FORMAT(SUM(CASE WHEN p.estado IN ('Vendida','Rentada') THEN p.precio ELSE 0 END), 2)) 
+    ->         AS ingresos_totales
+    ->   FROM desarrollos d
+    ->   JOIN propiedades p USING(id_desarrollo)
+    ->   GROUP BY tipo_desarrollo,tipo_propiedad
+    ->   ORDER BY SUM(p.precio) DESC
+    ->   ) AS R;
++-----------------+------------------------+---------------------+-------------------------------+------------------+------------------+
+| tipo_desarrollo | tipo_propiedad         | propiedades_totales | propiedades_vendidas_rentadas | ingresos_totales | avance_comercial |
++-----------------+------------------------+---------------------+-------------------------------+------------------+------------------+
+| Corporativo     | Oficina                |                  71 |                            42 | $ 254,922,938.38 | 59.15%           |
+| Residencial     | Departamento           |                  67 |                            35 | $ 195,655,875.35 | 52.24%           |
+| Residencial     | Casa                   |                  66 |                            30 | $ 166,045,173.47 | 45.45%           |
+| Comercial       | Ancla Comercial        |                  46 |                            25 | $ 140,020,128.01 | 54.35%           |
+| Comercial       | Centro Comercial       |                  50 |                            25 | $ 111,952,438.88 | 50.00%           |
+| Industrial      | Nave Industrial        |                  41 |                            22 | $ 116,558,051.98 | 53.66%           |
+| Comercial       | Local                  |                  45 |                            17 | $ 100,417,491.71 | 37.78%           |
+| Corporativo     | Hotel Corporativo      |                  31 |                            20 | $ 118,408,255.54 | 64.52%           |
+| Corporativo     | Vivienda Ejecutiva     |                  26 |                            16 | $ 92,184,279.70  | 61.54%           |
+| Industrial      | Parque Industrial      |                  27 |                            12 | $ 66,061,478.27  | 44.44%           |
+| Industrial      | Almacen                |                  16 |                             7 | $ 49,900,471.37  | 43.75%           |
+| Industrial      | Centro de distribucion |                  14 |                             5 | $ 31,506,937.00  | 35.71%           |
++-----------------+------------------------+---------------------+-------------------------------+------------------+------------------+
+12 rows in set (0.01 sec)
+
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>/*
+   /*> **************************
+   /*> *       CONSULTA 6       *
+   /*> **************************
+   /*> */
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>/*Encontrar a los clientes que todavía no liquidan algunos de sus contratos por completo,
+   /*> mostrando un resumen del precio final pactado en sus contratos, la cantidad que han pagado
+   /*> hasta el momento, el porcentaje pagado respecto al valor de la propiedad, así como el 
+   /*> plazo que han tenido desde que se firmó el contrato.
+   /*> 
+   /*> Esta consulta nos permite identificar aquellos clientes que son responsables en sus pagos
+   /*> así como los que podrían estar teniendo problemas para el pago de sus propiedades, identificándolos 
+   /*> principalmente por el tiempo que ha transcurrido desde su firma de contrato y el % de pago que 
+   /*> han acumulado hasta hoy.*/
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:52 2025] (desarrollos_inmobiliarios_db) ~>SELECT p.id_contrato,
+    ->     CONCAT_WS(' ',cl.nombre,cl.apellido_paterno,cl.apellido_materno) AS nombre_completo_cliente,
+    ->     CONCAT('$ ',FORMAT((c.precio_final),2)) AS precio_final,
+    ->     CONCAT('$ ',FORMAT(SUM(p.monto),2)) AS monto_pagado,
+    ->     CONCAT(ROUND(SUM(p.monto)/c.precio_final*100,2),'%') AS porcentaje_pagado,
+    ->     CONCAT(TIMESTAMPDIFF(YEAR, c.fecha_contrato, NOW()), ' años ',
+    ->            TIMESTAMPDIFF(MONTH, c.fecha_contrato, NOW()) % 12, ' meses ',
+    ->            DATEDIFF(NOW(), DATE_ADD(DATE_ADD(c.fecha_contrato, 
+    ->               INTERVAL TIMESTAMPDIFF(YEAR, c.fecha_contrato, NOW()) YEAR),
+    ->               INTERVAL TIMESTAMPDIFF(MONTH, c.fecha_contrato, NOW()) % 12 MONTH)
+    ->           ), ' días') AS tiempo_transcurrido
+    -> FROM pagos p 
+    -> JOIN contratos c ON p.id_contrato = c.id_contrato
+    -> JOIN clientes cl ON c.id_cliente = cl.id_cliente
+    -> GROUP BY p.id_contrato
+    -> HAVING porcentaje_pagado != '100.00%'
+    -> ORDER BY SUM(p.monto)/c.precio_final DESC;
++-------------+-----------------------------------+----------------+----------------+-------------------+---------------------------+
+| id_contrato | nombre_completo_cliente           | precio_final   | monto_pagado   | porcentaje_pagado | tiempo_transcurrido       |
++-------------+-----------------------------------+----------------+----------------+-------------------+---------------------------+
+|         211 | José Eduardo Bueno Godínez        | $ 727,905.52   | $ 369,179.15   | 50.72%            | 0 años 6 meses 10 días    |
+|          36 | Dulce María Villagómez Alvarado   | $ 1,215,712.97 | $ 309,592.53   | 25.47%            | 0 años 9 meses 29 días    |
+|         130 | Karina Porras Ceballos            | $ 910,969.21   | $ 221,053.16   | 24.27%            | 0 años 4 meses 16 días    |
+|         119 | Juan Carlos Godínez Rivas         | $ 1,190,177.48 | $ 264,334.19   | 22.21%            | 0 años 5 meses 19 días    |
+|         222 | Gabino Quintana Mena              | $ 6,669,629.87 | $ 1,439,605.90 | 21.58%            | 0 años 6 meses 14 días    |
+|         219 | Zoé Burgos Blanco                 | $ 548,511.90   | $ 98,893.08    | 18.03%            | 0 años 6 meses 8 días     |
+|          37 | Benito Ruiz Prieto                | $ 1,052,404.60 | $ 173,885.87   | 16.52%            | 0 años 1 meses 3 días     |
+|         233 | Minerva Montez Cortés             | $ 1,673,796.10 | $ 259,866.27   | 15.53%            | 0 años 1 meses 24 días    |
+|         108 | Angélica Collazo Cortés           | $ 1,666,166.56 | $ 257,433.62   | 15.45%            | 0 años 10 meses 18 días   |
+|          49 | Hermelinda Padrón de León         | $ 1,622,590.46 | $ 240,387.04   | 14.82%            | 0 años 2 meses 29 días    |
+|          41 | Mariano Vega Briones              | $ 1,727,402.60 | $ 254,819.67   | 14.75%            | 0 años 11 meses 1 días    |
+|         229 | Aurora Villalobos Ornelas         | $ 2,635,276.53 | $ 335,147.63   | 12.72%            | 0 años 4 meses 24 días    |
+|          33 | Uriel Lozada Garay                | $ 1,275,523.60 | $ 150,479.29   | 11.80%            | 0 años 2 meses 8 días     |
+|          18 | Antonio Murillo Espinosa          | $ 2,210,516.33 | $ 248,279.39   | 11.23%            | 0 años 6 meses 4 días     |
+|          44 | Emilia Barreto Salas              | $ 1,972,867.08 | $ 209,018.93   | 10.59%            | 0 años 4 meses 25 días    |
+|          93 | Humberto Olmos Ayala              | $ 1,459,722.27 | $ 153,439.06   | 10.51%            | 0 años 4 meses 13 días    |
+|          70 | Ruby Alejandro Escobedo           | $ 1,267,249.04 | $ 124,991.50   | 9.86%             | 1 años 11 meses 9 días    |
+|         193 | Abel Apodaca Armas                | $ 1,739,967.18 | $ 171,120.63   | 9.83%             | 0 años 2 meses 21 días    |
+|          99 | Leonor Centeno Valencia           | $ 2,727,601.07 | $ 261,077.87   | 9.57%             | 0 años 9 meses 22 días    |
+|         192 | Eva Orozco Caldera                | $ 3,560,566.04 | $ 336,582.17   | 9.45%             | 0 años 4 meses 29 días    |
+|          10 | Federico Trejo Alva               | $ 2,920,288.22 | $ 270,485.92   | 9.26%             | 0 años 4 meses 18 días    |
+|         143 | Alfredo Ybarra Garica             | $ 1,347,074.85 | $ 116,811.57   | 8.67%             | 0 años 7 meses 13 días    |
+|         240 | Gabriel Bétancourt Mesa           | $ 3,054,173.19 | $ 257,533.82   | 8.43%             | 0 años 2 meses 13 días    |
+|         127 | Trinidad Tórrez Espinal           | $ 2,871,745.16 | $ 239,494.94   | 8.34%             | 0 años 8 meses 26 días    |
+|         218 | Zoé Vargas Haro                   | $ 3,020,579.70 | $ 242,332.37   | 8.02%             | 0 años 6 meses 17 días    |
+|          50 | Leticia Nava Limón                | $ 2,879,220.47 | $ 222,932.65   | 7.74%             | 0 años 3 meses 9 días     |
+|          25 | Juan Carlos Godínez Rivas         | $ 4,890,777.44 | $ 352,901.16   | 7.22%             | 1 años 2 meses 11 días    |
+|          78 | Débora Moreno Ponce               | $ 3,482,714.25 | $ 237,072.36   | 6.81%             | 1 años 2 meses 24 días    |
+|          71 | Fabiola Terán Villagómez          | $ 3,106,455.51 | $ 205,017.16   | 6.60%             | 0 años 3 meses 24 días    |
+|         255 | Rubén Carrero Ramón               | $ 3,737,194.93 | $ 226,782.60   | 6.07%             | 0 años 8 meses 6 días     |
+|          65 | Diana Barreto Caraballo           | $ 6,431,527.00 | $ 388,414.51   | 6.04%             | 0 años 5 meses 16 días    |
+|          79 | José Eduardo Bueno Godínez        | $ 2,644,118.84 | $ 156,365.67   | 5.91%             | 2 años 1 meses 21 días    |
+|         114 | Dulce María Villagómez Alvarado   | $ 2,630,880.02 | $ 155,178.14   | 5.90%             | 0 años 2 meses 3 días     |
+|          77 | Ruby Alejandro Escobedo           | $ 1,864,184.41 | $ 105,105.48   | 5.64%             | 0 años 0 meses 26 días    |
+|         106 | Delia Vega Rentería               | $ 5,289,649.09 | $ 296,029.77   | 5.60%             | 1 años 10 meses 18 días   |
+|          30 | Elvia Lucero Peralta              | $ 4,360,678.67 | $ 224,241.49   | 5.14%             | 0 años 4 meses 3 días     |
+|          92 | José Carlos Colunga Rascón        | $ 4,044,774.74 | $ 199,785.02   | 4.94%             | 0 años 3 meses 22 días    |
+|         111 | Gilberto Montemayor Camarillo     | $ 4,921,547.51 | $ 239,625.34   | 4.87%             | 0 años 6 meses 29 días    |
+|          19 | Soledad Puga Lomeli               | $ 3,378,651.46 | $ 163,917.36   | 4.85%             | 0 años 1 meses 5 días     |
+|         150 | Soledad Puga Lomeli               | $ 5,527,824.19 | $ 255,542.15   | 4.62%             | 0 años 6 meses 5 días     |
+|         157 | Isabela Hernández Pantoja         | $ 7,387,499.85 | $ 338,250.41   | 4.58%             | 0 años 5 meses 22 días    |
+|         228 | Aldo Uribe Guzmán                 | $ 1,973,548.28 | $ 82,447.27    | 4.18%             | 0 años 7 meses 29 días    |
+|         245 | Verónica de la Rosa Montemayor    | $ 3,044,372.65 | $ 121,952.83   | 4.01%             | 0 años 2 meses 0 días     |
+|          60 | Marisol Rubio Cisneros            | $ 7,470,384.17 | $ 292,591.00   | 3.92%             | 1 años 0 meses 17 días    |
+|         115 | Dulce María Villagómez Alvarado   | $ 1,950,449.25 | $ 76,229.35    | 3.91%             | 0 años 3 meses 19 días    |
+|         139 | Hermelinda Padrón de León         | $ 5,597,990.61 | $ 215,801.69   | 3.85%             | 0 años 10 meses 7 días    |
+|         196 | Emilia Barreto Salas              | $ 7,845,257.58 | $ 290,247.89   | 3.70%             | 0 años 11 meses 19 días   |
+|         109 | Bruno Escamilla Rosario           | $ 3,764,038.60 | $ 137,190.69   | 3.64%             | 0 años 5 meses 14 días    |
+|         155 | Blanca Baca Mayorga               | $ 3,112,723.30 | $ 112,263.89   | 3.61%             | 0 años 5 meses 8 días     |
+|         131 | Cristal Pedroza Amador            | $ 4,876,652.50 | $ 173,283.58   | 3.55%             | 1 años 2 meses 19 días    |
+|          43 | Ramiro Ocampo Curiel              | $ 4,435,561.98 | $ 156,823.63   | 3.54%             | 3 años 4 meses 6 días     |
+|          63 | Isabela Hernández Pantoja         | $ 2,505,013.99 | $ 86,230.92    | 3.44%             | 0 años 11 meses 4 días    |
+|         141 | Estefanía Delgado Reyes           | $ 5,154,685.85 | $ 171,367.83   | 3.32%             | 0 años 3 meses 22 días    |
+|          13 | Ofelia Pedraza Salas              | $ 2,863,951.08 | $ 92,369.61    | 3.23%             | 0 años 6 meses 2 días     |
+|         172 | Silvia Dueñas Jurado              | $ 5,296,318.98 | $ 170,257.74   | 3.21%             | 0 años 1 meses 17 días    |
+|         186 | Bruno Escamilla Rosario           | $ 9,617,152.33 | $ 306,914.50   | 3.19%             | 0 años 5 meses 29 días    |
+|         238 | Gabriela Carbajal Olmos           | $ 6,906,722.07 | $ 219,396.55   | 3.18%             | 1 años 3 meses 5 días     |
+|         205 | Cristal Pedroza Amador            | $ 9,635,466.14 | $ 295,588.26   | 3.07%             | 0 años 3 meses 13 días    |
+|          22 | Carlos Pantoja Olmos              | $ 8,762,621.44 | $ 259,013.86   | 2.96%             | 2 años 1 meses 1 días     |
+|         221 | Zoé Vargas Haro                   | $ 7,715,322.96 | $ 226,436.40   | 2.93%             | 0 años 10 meses 8 días    |
+|         110 | Débora Moreno Ponce               | $ 6,021,435.27 | $ 174,738.96   | 2.90%             | 0 años 1 meses 21 días    |
+|          90 | Isabel Sevilla Pineda             | $ 8,126,038.48 | $ 235,725.44   | 2.90%             | 1 años 3 meses 29 días    |
+|          32 | Ofelia Pedraza Salas              | $ 7,672,391.25 | $ 221,283.62   | 2.88%             | 0 años 9 meses 0 días     |
+|          20 | Isabela Aguayo Mejía              | $ 3,317,430.45 | $ 95,102.61    | 2.87%             | 0 años 0 meses 2 días     |
+|         105 | Barbara Zamora Ochoa              | $ 4,474,507.95 | $ 126,137.21   | 2.82%             | 0 años 2 meses 15 días    |
+|         195 | Jorge Luis Garza Casárez          | $ 3,453,638.60 | $ 97,291.10    | 2.82%             | 1 años 3 meses 13 días    |
+|          34 | Ariadna Leiva Zamudio             | $ 2,541,892.87 | $ 71,434.13    | 2.81%             | 1 años 8 meses 26 días    |
+|          89 | Arturo Blanco Mata                | $ 9,186,443.93 | $ 245,907.84   | 2.68%             | 0 años 4 meses 7 días     |
+|          17 | Isabela Aguayo Mejía              | $ 6,260,652.67 | $ 164,354.14   | 2.63%             | 1 años 8 meses 19 días    |
+|         212 | Rosa de la Garza Borrego          | $ 5,469,336.65 | $ 141,271.24   | 2.58%             | 0 años 5 meses 14 días    |
+|         153 | Abraham Roldán Palacios           | $ 4,759,354.39 | $ 122,259.88   | 2.57%             | 1 años 1 meses 15 días    |
+|         209 | Elvira Casanova Mora              | $ 6,644,291.65 | $ 167,495.55   | 2.52%             | 0 años 10 meses 25 días   |
+|           4 | Verónica de la Rosa Montemayor    | $ 9,096,993.77 | $ 225,070.19   | 2.47%             | 0 años 5 meses 15 días    |
+|          96 | Verónica de la Rosa Montemayor    | $ 6,258,185.58 | $ 138,194.84   | 2.21%             | 2 años 3 meses 10 días    |
+|         125 | Marisol Rubio Cisneros            | $ 9,640,446.47 | $ 204,595.26   | 2.12%             | 0 años 2 meses 29 días    |
+|         254 | Cristal Sáenz Hernádez            | $ 5,049,012.34 | $ 106,313.94   | 2.11%             | 0 años 11 meses 9 días    |
+|         154 | Hermelinda Escalante Camacho      | $ 4,117,688.14 | $ 86,117.35    | 2.09%             | 0 años 2 meses 5 días     |
+|         225 | Daniel Rivero Holguín             | $ 8,106,988.35 | $ 165,315.97   | 2.04%             | 0 años 8 meses 11 días    |
+|         164 | Cristal Sáenz Hernádez            | $ 7,153,680.02 | $ 139,977.09   | 1.96%             | 0 años 11 meses 2 días    |
+|         148 | Abel Apodaca Armas                | $ 9,429,699.88 | $ 184,084.69   | 1.95%             | 1 años 3 meses 28 días    |
+|         226 | Cristal Sáenz Hernádez            | $ 8,933,883.78 | $ 168,459.25   | 1.89%             | 1 años 0 meses 7 días     |
+|         100 | Cristal Sáenz Hernádez            | $ 9,271,890.45 | $ 174,278.97   | 1.88%             | 0 años 3 meses 9 días     |
+|         188 | Yuridia Delgadillo Quintanilla    | $ 7,201,895.83 | $ 134,397.79   | 1.87%             | 0 años 9 meses 4 días     |
+|         117 | Humberto Olmos Ayala              | $ 4,125,385.25 | $ 75,817.38    | 1.84%             | 1 años 3 meses 4 días     |
+|         180 | Lucía Véliz Solano                | $ 3,337,545.40 | $ 60,360.81    | 1.81%             | 0 años 11 meses 19 días   |
+|          21 | Aldo Uribe Guzmán                 | $ 4,961,340.06 | $ 88,821.76    | 1.79%             | 0 años 0 meses 16 días    |
+|          42 | Abel Esparza Madrid               | $ 7,457,369.15 | $ 132,435.94   | 1.78%             | 3 años 1 meses 22 días    |
+|          28 | Eloy Moreno Palomo                | $ 7,157,863.77 | $ 126,365.75   | 1.77%             | 0 años 0 meses 25 días    |
+|         128 | Rosa de la Garza Borrego          | $ 4,358,197.12 | $ 75,925.58    | 1.74%             | 0 años 9 meses 23 días    |
+|          58 | Laura Palomino Leyva              | $ 9,429,084.23 | $ 163,207.19   | 1.73%             | 1 años 3 meses 20 días    |
+|           2 | Soledad Puga Lomeli               | $ 6,845,519.26 | $ 116,929.40   | 1.71%             | 0 años 0 meses 28 días    |
+|         168 | Eloy Moreno Palomo                | $ 5,200,233.30 | $ 88,424.74    | 1.70%             | 0 años 8 meses 4 días     |
+|         177 | Elena Montalvo Puga               | $ 8,275,779.79 | $ 137,511.96   | 1.66%             | 0 años 3 meses 20 días    |
+|         187 | Leonor Candelaria Laureano        | $ 4,726,202.42 | $ 76,055.58    | 1.61%             | 1 años 1 meses 3 días     |
+|         173 | Rodrigo Zedillo Rael              | $ 6,520,691.02 | $ 104,732.56   | 1.61%             | 0 años 11 meses 5 días    |
+|         189 | Gabriel Bétancourt Mesa           | $ 9,616,695.11 | $ 154,185.54   | 1.60%             | 0 años 0 meses 26 días    |
+|         165 | Soledad Puga Lomeli               | $ 9,283,788.35 | $ 147,822.61   | 1.59%             | 1 años 3 meses 20 días    |
+|         253 | Rubén Carrero Ramón               | $ 1,917,634.17 | $ 30,082.50    | 1.57%             | 2 años 3 meses 12 días    |
+|         145 | Rosalia Benavides Pantoja         | $ 8,819,651.67 | $ 137,353.25   | 1.56%             | 1 años 2 meses 13 días    |
+|          12 | Rubén Carrero Ramón               | $ 9,610,113.24 | $ 148,978.96   | 1.55%             | 0 años 11 meses 16 días   |
+|           6 | Barbara Zamora Ochoa              | $ 8,484,351.51 | $ 128,919.06   | 1.52%             | 1 años 2 meses 19 días    |
+|         147 | Reynaldo Rodarte Loera            | $ 5,973,036.60 | $ 89,403.96    | 1.50%             | 0 años 1 meses 23 días    |
+|           7 | Lucía Véliz Solano                | $ 3,593,924.73 | $ 53,330.97    | 1.48%             | 0 años 3 meses 12 días    |
+|         176 | Federico Trejo Alva               | $ 5,286,213.76 | $ 78,325.31    | 1.48%             | 0 años 4 meses 4 días     |
+|          16 | Ofelia Pedraza Salas              | $ 5,242,341.02 | $ 76,158.68    | 1.45%             | 1 años 0 meses 22 días    |
+|          76 | Carlos Pantoja Olmos              | $ 9,669,061.25 | $ 130,335.62   | 1.35%             | 1 años 8 meses 6 días     |
+|         235 | Mariano Vega Briones              | $ 9,035,205.15 | $ 121,364.91   | 1.34%             | 1 años 0 meses 26 días    |
+|         215 | Humberto Olmos Ayala              | $ 5,560,081.60 | $ 74,114.63    | 1.33%             | 0 años 7 meses 8 días     |
+|          72 | Zoé Burgos Blanco                 | $ 8,626,517.73 | $ 114,262.73   | 1.32%             | 0 años 0 meses 22 días    |
+|          45 | Federico Trejo Alva               | $ 6,414,309.48 | $ 82,172.58    | 1.28%             | 0 años 1 meses 11 días    |
+|         231 | Elena Montalvo Puga               | $ 6,466,707.00 | $ 81,904.02    | 1.27%             | 0 años 4 meses 10 días    |
+|          91 | Angélica Chapa Rivero             | $ 5,697,826.56 | $ 71,943.19    | 1.26%             | 1 años 3 meses 12 días    |
+|         201 | Cristobal Roque Cotto             | $ 9,834,900.87 | $ 119,125.85   | 1.21%             | 0 años 10 meses 27 días   |
+|         151 | Miriam Barrientos Camacho         | $ 7,079,113.19 | $ 82,811.06    | 1.17%             | 0 años 5 meses 2 días     |
+|         194 | Cristal Sáenz Hernádez            | $ 5,256,988.81 | $ 60,238.95    | 1.15%             | 0 años 9 meses 17 días    |
+|          74 | Carlos Rosales Guzmán             | $ 8,031,596.55 | $ 84,774.36    | 1.06%             | 0 años 0 meses 24 días    |
+|          88 | Eloy Moreno Palomo                | $ 9,987,487.47 | $ 103,959.67   | 1.04%             | 0 años 3 meses 25 días    |
+|         199 | Gabriela Carbajal Olmos           | $ 7,884,249.34 | $ 76,401.21    | 0.97%             | 0 años 11 meses 29 días   |
+|         242 | Abel Apodaca Armas                | $ 9,571,280.55 | $ 89,945.08    | 0.94%             | 0 años 8 meses 12 días    |
+|          35 | Emilia Barreto Salas              | $ 9,727,685.92 | $ 83,797.17    | 0.86%             | 0 años 4 meses 11 días    |
+|         135 | Soledad Puga Lomeli               | $ 7,406,026.15 | $ 62,689.51    | 0.85%             | 0 años 5 meses 28 días    |
+|         217 | Francisca Gallardo Terán          | $ 9,303,966.56 | $ 78,679.76    | 0.85%             | 0 años 0 meses 14 días    |
+|         220 | Abel Apodaca Armas                | $ 8,920,189.88 | $ 68,284.60    | 0.77%             | 0 años 10 meses 14 días   |
+|         144 | Ramiro Ocampo Curiel              | $ 7,249,287.36 | $ 53,444.35    | 0.74%             | 0 años 10 meses 0 días    |
+|         156 | Carlos Pantoja Olmos              | $ 9,966,721.67 | $ 71,541.01    | 0.72%             | 1 años 2 meses 26 días    |
+|         237 | Conchita Nieves Trejo             | $ 9,366,748.66 | $ 61,352.84    | 0.66%             | 0 años 4 meses 29 días    |
+|          38 | Elvia Lucero Peralta              | $ 9,921,894.78 | $ 62,486.09    | 0.63%             | 0 años 1 meses 13 días    |
+|         256 | Débora Moreno Ponce               | $ 3,732,417.71 | $ 22,936.35    | 0.61%             | 0 años 3 meses 18 días    |
+|         118 | Hermelinda Escalante Camacho      | $ 7,823,594.39 | $ 41,663.28    | 0.53%             | 0 años 3 meses 25 días    |
+|          57 | Bruno Escamilla Rosario           | $ 9,720,086.37 | $ 48,052.53    | 0.49%             | 0 años 0 meses 15 días    |
+|         174 | Marisol Rubio Cisneros            | $ 8,274,573.33 | $ 40,600.61    | 0.49%             | 0 años 7 meses 27 días    |
+|          11 | Abel Apodaca Armas                | $ 2,786,863.29 | $ 13,196.06    | 0.47%             | 0 años 4 meses 3 días     |
+|          27 | Débora Moreno Ponce               | $ 8,437,843.16 | $ 38,593.54    | 0.46%             | 0 años 0 meses 7 días     |
+|          85 | Gabriel Bétancourt Mesa           | $ 9,930,004.14 | $ 45,105.15    | 0.45%             | 2 años 10 meses 25 días   |
++-------------+-----------------------------------+----------------+----------------+-------------------+---------------------------+
+134 rows in set (0.01 sec)
+
+[\Thu May 22 14:16:53 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:53 2025] (desarrollos_inmobiliarios_db) ~>/*
+   /*> **************************
+   /*> *       CONSULTA 7       *
+   /*> **************************
+   /*> */
+[\Thu May 22 14:16:53 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:53 2025] (desarrollos_inmobiliarios_db) ~>/*¿Cuál es el tiempo minimo,promedio,y maximo (en días), que se tardan en vender
+   /*> o rentar las propiedades desde que se registran hasta que se firma un contrato, 
+   /*> agrupadas por tipo de desarrollo y tipo de propiedad?
+   /*> 
+   /*> Esta consulta ayuda a tener en mente un intervalo de tiempo en el cuál las propiedades
+   /*> de cada tipo suelen venderse y/o rentarse, de modo que puede ser útil para la planeación
+   /*> de futuras construcciones, ya sea tomando en cuenta aquellas construcciones que tengan 
+   /*> un tiempo de venta/renta menor, o que tengan un intervalo de tiempo más corto.*/
+[\Thu May 22 14:16:53 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:53 2025] (desarrollos_inmobiliarios_db) ~>SELECT d.tipo AS tipo_desarrollo,p.tipo AS tipo_propiedad,
+    -> CONCAT(FLOOR((MIN(DATEDIFF(c.fecha_contrato,p.fecha_registro)) % 365)/30), ' meses ',
+    ->        ROUND((MIN(DATEDIFF(c.fecha_contrato,p.fecha_registro)) % 365) % 30), ' días') AS tiempo_minimo_venta_renta,
+    -> CONCAT(FLOOR(AVG(DATEDIFF(c.fecha_contrato,p.fecha_registro))/365),' años ',
+    ->   FLOOR((AVG(DATEDIFF(c.fecha_contrato,p.fecha_registro)) % 365)/30), ' meses ',
+    ->   ROUND((AVG(DATEDIFF(c.fecha_contrato,p.fecha_registro)) % 365) % 30), ' días') AS tiempo_promedio_venta_renta,
+    -> CONCAT(FLOOR(MAX(DATEDIFF(c.fecha_contrato,p.fecha_registro))/365),' años ',
+    ->   FLOOR((MAX(DATEDIFF(c.fecha_contrato,p.fecha_registro)) % 365)/30), ' meses ',
+    ->   ROUND((MAX(DATEDIFF(c.fecha_contrato,p.fecha_registro)) % 365) % 30), ' días') AS tiempo_maximo_venta_renta
+    -> FROM desarrollos d
+    -> JOIN propiedades p USING(id_desarrollo)
+    -> JOIN contratos c USING(id_propiedad)
+    -> WHERE p.estado IN ('Vendida','Rentada')
+    -> GROUP BY tipo_desarrollo,tipo_propiedad
+    -> ORDER BY AVG(DATEDIFF(c.fecha_contrato,p.fecha_registro));
++-----------------+------------------------+---------------------------+-----------------------------+---------------------------+
+| tipo_desarrollo | tipo_propiedad         | tiempo_minimo_venta_renta | tiempo_promedio_venta_renta | tiempo_maximo_venta_renta |
++-----------------+------------------------+---------------------------+-----------------------------+---------------------------+
+| Residencial     | Departamento           | 0 meses 9 días            | 1 años 1 meses 21 días      | 4 años 2 meses 6 días     |
+| Corporativo     | Oficina                | 0 meses 7 días            | 1 años 1 meses 27 días      | 4 años 3 meses 0 días     |
+| Comercial       | Ancla Comercial        | 0 meses 13 días           | 1 años 1 meses 28 días      | 4 años 9 meses 7 días     |
+| Industrial      | Almacen                | 0 meses 25 días           | 1 años 2 meses 29 días      | 3 años 3 meses 1 días     |
+| Industrial      | Nave Industrial        | 0 meses 10 días           | 1 años 3 meses 12 días      | 3 años 3 meses 13 días    |
+| Comercial       | Centro Comercial       | 0 meses 14 días           | 1 años 8 meses 15 días      | 4 años 3 meses 22 días    |
+| Corporativo     | Vivienda Ejecutiva     | 1 meses 21 días           | 1 años 10 meses 22 días     | 4 años 11 meses 5 días    |
+| Comercial       | Local                  | 2 meses 0 días            | 2 años 0 meses 13 días      | 4 años 12 meses 2 días    |
+| Corporativo     | Hotel Corporativo      | 0 meses 7 días            | 2 años 1 meses 15 días      | 5 años 5 meses 9 días     |
+| Industrial      | Parque Industrial      | 1 meses 8 días            | 2 años 1 meses 23 días      | 5 años 0 meses 5 días     |
+| Residencial     | Casa                   | 0 meses 26 días           | 2 años 2 meses 2 días       | 5 años 7 meses 29 días    |
+| Industrial      | Centro de distribucion | 10 meses 27 días          | 2 años 2 meses 19 días      | 3 años 9 meses 26 días    |
++-----------------+------------------------+---------------------------+-----------------------------+---------------------------+
+12 rows in set (0.01 sec)
+
+[\Thu May 22 14:16:53 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:53 2025] (desarrollos_inmobiliarios_db) ~>/*
+   /*> **************************
+   /*> *       CONSULTA 8       *
+   /*> **************************
+   /*> */
+[\Thu May 22 14:16:53 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:53 2025] (desarrollos_inmobiliarios_db) ~>/*Obtener los nombres completos de los clientes junto con los nombres completos
+   /*> del/los agente(s) con el(los) que han interactuado el mayor número de veces, así como
+   /*> la cantidad de interacciones entre el cliente y el/los agente(s).
+   /*> 
+   /*> Esta consulta nos permite tener un registro de cuales son los agentes con los que más han
+   /*> interactuado los clientes, y por tanto, con los que seguramente ha desarrollado más confianza
+   /*> o se sienten más satisfechos, de modo que podamos asignar este o estos agente(s) preferido(s) 
+   /*> por cliente en futuras ventas.*/
+[\Thu May 22 14:16:53 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:53 2025] (desarrollos_inmobiliarios_db) ~>SELECT cl.id_cliente, 
+    ->        CONCAT_WS(' ',cl.nombre,cl.apellido_paterno,cl.apellido_materno) AS nombre_completo_cliente,
+    ->        a.id_agente, 
+    ->        CONCAT_WS(' ',a.nombre,a.apellido_paterno,a.apellido_materno) AS nombre_completo_agente,
+    ->        i.num_interaccion as total_interacciones
+    -> FROM interacciones i
+    -> JOIN clientes cl ON i.id_cliente = cl.id_cliente
+    -> JOIN agentes a ON i.id_agente = a.id_agente
+    -> WHERE (i.id_cliente, i.num_interaccion) IN (SELECT id_cliente, MAX(num_interaccion)
+    ->                                             FROM interacciones
+    ->                                             GROUP BY id_cliente)
+    -> ORDER BY cl.id_cliente;
++------------+------------------------------------+-----------+----------------------------------+---------------------+
+| id_cliente | nombre_completo_cliente            | id_agente | nombre_completo_agente           | total_interacciones |
++------------+------------------------------------+-----------+----------------------------------+---------------------+
+|          1 | Bruno Escamilla Rosario            |        32 | Susana Benítez Armendáriz        |                   1 |
+|          1 | Bruno Escamilla Rosario            |        51 | Vanesa Aguilar Cintrón           |                   1 |
+|          1 | Bruno Escamilla Rosario            |        53 | Hugo Sierra Olivo                |                   1 |
+|          1 | Bruno Escamilla Rosario            |        56 | María Teresa Terán Ibarra        |                   1 |
+|          2 | Carlos Pantoja Olmos               |        29 | Israel Baca Aranda               |                   4 |
+|          2 | Carlos Pantoja Olmos               |        97 | Víctor Vargas López              |                   4 |
+|          3 | Leonor Centeno Valencia            |        25 | Santiago Gaona Aguirre           |                   1 |
+|          3 | Leonor Centeno Valencia            |        64 | María Teresa Arguello Vallejo    |                   1 |
+|          3 | Leonor Centeno Valencia            |        82 | Julio Ávila Zapata               |                   1 |
+|          4 | Reynaldo Rodarte Loera             |        59 | Araceli Cervántez Fonseca        |                   2 |
+|          5 | Isabela Aguayo Mejía               |        45 | Rafael Luna Moreno               |                   2 |
+|          6 | Arturo Blanco Mata                 |        42 | Genaro Arevalo Abrego            |                   2 |
+|          7 | Angélica Collazo Cortés            |        48 | Ofelia Mata Ceballos             |                   3 |
+|          8 | Martha Sepúlveda Montaño           |        44 | Bernardo Partida Tórrez          |                   4 |
+|          9 | Federico Trejo Alva                |        28 | Dulce Madrid Sarabia             |                   4 |
+|          9 | Federico Trejo Alva                |        57 | Amador Casas Olivo               |                   4 |
+|         10 | Vanesa Romero Montañez             |         3 | Nicolás Hurtado Bañuelos         |                   4 |
+|         11 | Yuridia Delgadillo Quintanilla     |        58 | José Luis Rosado Llamas          |                   3 |
+|         12 | Fabiola Terán Villagómez           |        97 | Víctor Vargas López              |                   4 |
+|         13 | Rubén Carrero Ramón                |        47 | Timoteo Loya Gaytán              |                   1 |
+|         13 | Rubén Carrero Ramón                |        49 | Aldo González Bravo              |                   1 |
+|         13 | Rubén Carrero Ramón                |        57 | Amador Casas Olivo               |                   1 |
+|         13 | Rubén Carrero Ramón                |        70 | David Abreu Cisneros             |                   1 |
+|         14 | Eloy Moreno Palomo                 |        21 | Mauro Carrillo Salinas           |                   3 |
+|         15 | Humberto Olmos Ayala               |         5 | Pascual Villagómez Loera         |                   1 |
+|         15 | Humberto Olmos Ayala               |        85 | Noemí Llamas Arce                |                   1 |
+|         15 | Humberto Olmos Ayala               |        91 | Laura Prieto Cantú               |                   1 |
+|         15 | Humberto Olmos Ayala               |        95 | María del Carmen Mendez Ortiz    |                   1 |
+|         16 | Zoé Burgos Blanco                  |        30 | Benito Rodríguez Coronado        |                   3 |
+|         16 | Zoé Burgos Blanco                  |        90 | José Emilio Torres Alonzo        |                   3 |
+|         17 | Aurora Villalobos Ornelas          |        13 | Graciela Muñoz Villanueva        |                   4 |
+|         18 | Francisco Javier Saldivar Madrigal |        89 | Victoria Montoya Caldera         |                   3 |
+|         19 | Ariadna Leiva Zamudio              |         4 | Claudia Tórrez Ramos             |                   4 |
+|         19 | Ariadna Leiva Zamudio              |        61 | Elias Mateo Lovato               |                   4 |
+|         20 | Estefanía Delgado Reyes            |        96 | Margarita Reynoso Flores         |                   3 |
+|         21 | Pedro Orosco Barraza               |        72 | Francisco Javier Terrazas Soto   |                   2 |
+|         22 | Gabino Quintana Mena               |         5 | Pascual Villagómez Loera         |                   1 |
+|         22 | Gabino Quintana Mena               |        11 | Zacarías Figueroa Baeza          |                   1 |
+|         22 | Gabino Quintana Mena               |        90 | José Emilio Torres Alonzo        |                   1 |
+|         23 | René Pelayo Gaitán                 |        54 | María Luisa Quiñónez Carvajal    |                   4 |
+|         23 | René Pelayo Gaitán                 |        79 | Noemí Reyes Correa               |                   4 |
+|         24 | Barbara Zamora Ochoa               |        55 | Felix Saiz Garay                 |                   4 |
+|         25 | Paulina Velázquez Solís            |        59 | Araceli Cervántez Fonseca        |                   1 |
+|         26 | Norma Galindo Aguilar              |        73 | Lilia Gil Alemán                 |                   3 |
+|         27 | José Eduardo Bueno Godínez         |        37 | Carmen Garica Mata               |                   4 |
+|         28 | Antonio Murillo Espinosa           |         9 | Camilo Arce Zelaya               |                   1 |
+|         28 | Antonio Murillo Espinosa           |        30 | Benito Rodríguez Coronado        |                   1 |
+|         28 | Antonio Murillo Espinosa           |        67 | Hugo Tamez Lomeli                |                   1 |
+|         29 | Minerva Montez Cortés              |        23 | Jorge Carrero Barela             |                   1 |
+|         29 | Minerva Montez Cortés              |        88 | Cristian Ojeda Amador            |                   1 |
+|         30 | Mariano Vega Briones               |        70 | David Abreu Cisneros             |                   3 |
+|         30 | Mariano Vega Briones               |        73 | Lilia Gil Alemán                 |                   3 |
+|         31 | Ramiro Ocampo Curiel               |        65 | Agustín de la Garza Valentín     |                   3 |
+|         32 | Diana Barreto Caraballo            |        40 | Lucía Preciado Delgado           |                   2 |
+|         33 | Isabela Hernández Pantoja          |        87 | Adán Curiel Vergara              |                   3 |
+|         34 | Lucía Véliz Solano                 |         2 | Óscar Zarate Contreras           |                   1 |
+|         34 | Lucía Véliz Solano                 |        32 | Susana Benítez Armendáriz        |                   1 |
+|         34 | Lucía Véliz Solano                 |        65 | Agustín de la Garza Valentín     |                   1 |
+|         35 | José Carlos Colunga Rascón         |        28 | Dulce Madrid Sarabia             |                   4 |
+|         35 | José Carlos Colunga Rascón         |        29 | Israel Baca Aranda               |                   4 |
+|         36 | Gabriela Carbajal Olmos            |        28 | Dulce Madrid Sarabia             |                   4 |
+|         37 | Ivonne Ibarra Cardona              |        51 | Vanesa Aguilar Cintrón           |                   4 |
+|         38 | Débora Moreno Ponce                |        25 | Santiago Gaona Aguirre           |                   3 |
+|         38 | Débora Moreno Ponce                |        80 | Cristobal Merino Cervántez       |                   3 |
+|         39 | Eva Orozco Caldera                 |        20 | Evelio Arriaga Manzanares        |                   4 |
+|         39 | Eva Orozco Caldera                 |        82 | Julio Ávila Zapata               |                   4 |
+|         40 | Ivonne Miranda Regalado            |        46 | Silvia Galván Alvarez            |                   1 |
+|         41 | Isaac Franco Marrero               |        82 | Julio Ávila Zapata               |                   4 |
+|         42 | Daniel Rivero Holguín              |         9 | Camilo Arce Zelaya               |                   1 |
+|         42 | Daniel Rivero Holguín              |        98 | Carmen Pérez González            |                   1 |
+|         43 | Juan Carlos Godínez Rivas          |        25 | Santiago Gaona Aguirre           |                   1 |
+|         43 | Juan Carlos Godínez Rivas          |        41 | Abraham Gamez Lugo               |                   1 |
+|         43 | Juan Carlos Godínez Rivas          |        53 | Hugo Sierra Olivo                |                   1 |
+|         44 | Flavio Montañez Laboy              |        10 | Angélica Madera Montez           |                   4 |
+|         45 | Noemí Echeverría Fajardo           |        71 | Olga de la O Barajas             |                   2 |
+|         46 | Emilia Barreto Salas               |        80 | Cristobal Merino Cervántez       |                   2 |
+|         47 | Elvia Lucero Peralta               |        29 | Israel Baca Aranda               |                   4 |
+|         48 | Soledad Puga Lomeli                |        55 | Felix Saiz Garay                 |                   2 |
+|         48 | Soledad Puga Lomeli                |        90 | José Emilio Torres Alonzo        |                   2 |
+|         49 | Verónica de la Rosa Montemayor     |        20 | Evelio Arriaga Manzanares        |                   1 |
+|         49 | Verónica de la Rosa Montemayor     |        26 | Noemí Arenas Barraza             |                   1 |
+|         49 | Verónica de la Rosa Montemayor     |        31 | Mayte Miranda Castellanos        |                   1 |
+|         49 | Verónica de la Rosa Montemayor     |        71 | Olga de la O Barajas             |                   1 |
+|         50 | Miriam Barrientos Camacho          |        72 | Francisco Javier Terrazas Soto   |                   3 |
+|         51 | Cristobal Roque Cotto              |        87 | Adán Curiel Vergara              |                   2 |
+|         52 | Uriel Lozada Garay                 |        19 | José Carlos Cabán Mireles        |                   4 |
+|         52 | Uriel Lozada Garay                 |        73 | Lilia Gil Alemán                 |                   4 |
+|         53 | Abel Apodaca Armas                 |        53 | Hugo Sierra Olivo                |                   4 |
+|         54 | Benito Ruiz Prieto                 |        19 | José Carlos Cabán Mireles        |                   3 |
+|         55 | Aldo Uribe Guzmán                  |         8 | AnUel Campos Concepción          |                   4 |
+|         56 | Leticia Nava Limón                 |        82 | Julio Ávila Zapata               |                   4 |
+|         57 | Francisca Chávez Arevalo           |        54 | María Luisa Quiñónez Carvajal    |                   2 |
+|         58 | Leonor Candelaria Laureano         |         4 | Claudia Tórrez Ramos             |                   2 |
+|         58 | Leonor Candelaria Laureano         |         6 | Ángela Burgos Cedillo            |                   2 |
+|         59 | Gabriel Bétancourt Mesa            |        33 | Camila Concepción Polanco        |                   1 |
+|         59 | Gabriel Bétancourt Mesa            |        42 | Genaro Arevalo Abrego            |                   1 |
+|         59 | Gabriel Bétancourt Mesa            |        57 | Amador Casas Olivo               |                   1 |
+|         59 | Gabriel Bétancourt Mesa            |        58 | José Luis Rosado Llamas          |                   1 |
+|         60 | Rosalia Benavides Pantoja          |         1 | Judith Peres Arevalo             |                   4 |
+|         61 | Trinidad Tórrez Espinal            |        32 | Susana Benítez Armendáriz        |                   4 |
+|         62 | Ruby Alejandro Escobedo            |        11 | Zacarías Figueroa Baeza          |                   3 |
+|         63 | Hermelinda Escalante Camacho       |         4 | Claudia Tórrez Ramos             |                   1 |
+|         63 | Hermelinda Escalante Camacho       |        38 | Lucía Luna Urbina                |                   1 |
+|         63 | Hermelinda Escalante Camacho       |        61 | Elias Mateo Lovato               |                   1 |
+|         63 | Hermelinda Escalante Camacho       |        80 | Cristobal Merino Cervántez       |                   1 |
+|         64 | Ignacio Hinojosa Hernádez          |        47 | Timoteo Loya Gaytán              |                   4 |
+|         65 | Linda Vaca Briones                 |        20 | Evelio Arriaga Manzanares        |                   4 |
+|         66 | Dulce María Villagómez Alvarado    |         2 | Óscar Zarate Contreras           |                   4 |
+|         66 | Dulce María Villagómez Alvarado    |        27 | Aldo Vela Bustamante             |                   4 |
+|         67 | Cristal Sáenz Hernádez             |         5 | Pascual Villagómez Loera         |                   1 |
+|         67 | Cristal Sáenz Hernádez             |        10 | Angélica Madera Montez           |                   1 |
+|         67 | Cristal Sáenz Hernádez             |        37 | Carmen Garica Mata               |                   1 |
+|         67 | Cristal Sáenz Hernádez             |        75 | Alta  Gracia Salcedo Alba        |                   1 |
+|         67 | Cristal Sáenz Hernádez             |        85 | Noemí Llamas Arce                |                   1 |
+|         68 | Clara Colunga Barela               |        13 | Graciela Muñoz Villanueva        |                   3 |
+|         69 | Francisco Javier Blanco Madrid     |         5 | Pascual Villagómez Loera         |                   3 |
+|         70 | Abraham Roldán Palacios            |        43 | Frida Magaña Tejeda              |                   4 |
+|         71 | Angélica Chapa Rivero              |        39 | Lorena Mayorga Quintana          |                   3 |
+|         72 | Rodrigo Zedillo Rael               |        42 | Genaro Arevalo Abrego            |                   2 |
+|         73 | Abel Esparza Madrid                |        39 | Lorena Mayorga Quintana          |                   4 |
+|         74 | Marisol Rubio Cisneros             |         4 | Claudia Tórrez Ramos             |                   3 |
+|         75 | Hermelinda Padrón de León          |        10 | Angélica Madera Montez           |                   1 |
+|         75 | Hermelinda Padrón de León          |        19 | José Carlos Cabán Mireles        |                   1 |
+|         75 | Hermelinda Padrón de León          |        22 | Abril Calvillo Orta              |                   1 |
+|         75 | Hermelinda Padrón de León          |        44 | Bernardo Partida Tórrez          |                   1 |
+|         75 | Hermelinda Padrón de León          |        82 | Julio Ávila Zapata               |                   1 |
+|         75 | Hermelinda Padrón de León          |        87 | Adán Curiel Vergara              |                   1 |
+|         76 | Isabel Sevilla Pineda              |         4 | Claudia Tórrez Ramos             |                   1 |
+|         76 | Isabel Sevilla Pineda              |        10 | Angélica Madera Montez           |                   1 |
+|         76 | Isabel Sevilla Pineda              |        15 | Abel Arellano Saldaña            |                   1 |
+|         76 | Isabel Sevilla Pineda              |        56 | María Teresa Terán Ibarra        |                   1 |
+|         76 | Isabel Sevilla Pineda              |        75 | Alta  Gracia Salcedo Alba        |                   1 |
+|         77 | Jorge Luis Garza Casárez           |        75 | Alta  Gracia Salcedo Alba        |                   2 |
+|         78 | Silvia Dueñas Jurado               |        96 | Margarita Reynoso Flores         |                   2 |
+|         79 | Lourdes Matías Zúñiga              |        26 | Noemí Arenas Barraza             |                   4 |
+|         79 | Lourdes Matías Zúñiga              |        46 | Silvia Galván Alvarez            |                   4 |
+|         80 | Blanca Baca Mayorga                |        25 | Santiago Gaona Aguirre           |                   2 |
+|         81 | Alfredo Ybarra Garica              |        79 | Noemí Reyes Correa               |                   2 |
+|         82 | Ofelia Pedraza Salas               |        55 | Felix Saiz Garay                 |                   2 |
+|         82 | Ofelia Pedraza Salas               |        78 | Nicolás Armas Vaca               |                   2 |
+|         83 | Karina Porras Ceballos             |        14 | Zacarías Vanegas Pedroza         |                   3 |
+|         83 | Karina Porras Ceballos             |        78 | Nicolás Armas Vaca               |                   3 |
+|         84 | Carlos Rosales Guzmán              |        97 | Víctor Vargas López              |                   3 |
+|         85 | Benito Caldera Ocampo              |        70 | David Abreu Cisneros             |                   4 |
+|         86 | Lourdes Cadena Esparza             |        23 | Jorge Carrero Barela             |                   3 |
+|         86 | Lourdes Cadena Esparza             |        41 | Abraham Gamez Lugo               |                   3 |
+|         87 | Elena Montalvo Puga                |        15 | Abel Arellano Saldaña            |                   1 |
+|         87 | Elena Montalvo Puga                |        21 | Mauro Carrillo Salinas           |                   1 |
+|         87 | Elena Montalvo Puga                |        35 | Abelardo Flores Castañeda        |                   1 |
+|         87 | Elena Montalvo Puga                |        75 | Alta  Gracia Salcedo Alba        |                   1 |
+|         88 | Jaime Meraz de la O                |        50 | Susana Sevilla Trujillo          |                   4 |
+|         88 | Jaime Meraz de la O                |        89 | Victoria Montoya Caldera         |                   4 |
+|         89 | Gloria Anaya Palacios              |        84 | Perla Saldivar Rolón             |                   4 |
+|         90 | Cristal Pedroza Amador             |        39 | Lorena Mayorga Quintana          |                   1 |
+|         90 | Cristal Pedroza Amador             |        65 | Agustín de la Garza Valentín     |                   1 |
+|         90 | Cristal Pedroza Amador             |        75 | Alta  Gracia Salcedo Alba        |                   1 |
+|         91 | Rosa de la Garza Borrego           |        64 | María Teresa Arguello Vallejo    |                   4 |
+|         92 | Alfonso Marrero Ramírez            |        11 | Zacarías Figueroa Baeza          |                   3 |
+|         92 | Alfonso Marrero Ramírez            |        94 | Raúl Ramírez Gallegos            |                   3 |
+|         93 | Elvira Casanova Mora               |        13 | Graciela Muñoz Villanueva        |                   1 |
+|         93 | Elvira Casanova Mora               |        15 | Abel Arellano Saldaña            |                   1 |
+|         93 | Elvira Casanova Mora               |        58 | José Luis Rosado Llamas          |                   1 |
+|         93 | Elvira Casanova Mora               |        88 | Cristian Ojeda Amador            |                   1 |
+|         94 | Zoé Vargas Haro                    |        27 | Aldo Vela Bustamante             |                   4 |
+|         95 | Francisca Gallardo Terán           |        25 | Santiago Gaona Aguirre           |                   4 |
+|         96 | Conchita Nieves Trejo              |         5 | Pascual Villagómez Loera         |                   3 |
+|         96 | Conchita Nieves Trejo              |        51 | Vanesa Aguilar Cintrón           |                   3 |
+|         96 | Conchita Nieves Trejo              |        67 | Hugo Tamez Lomeli                |                   3 |
+|         96 | Conchita Nieves Trejo              |        87 | Adán Curiel Vergara              |                   3 |
+|         97 | Gilberto Montemayor Camarillo      |        78 | Nicolás Armas Vaca               |                   1 |
+|         98 | Delia Vega Rentería                |        29 | Israel Baca Aranda               |                   1 |
+|         99 | Laura Palomino Leyva               |        75 | Alta  Gracia Salcedo Alba        |                   3 |
+|        100 | Sonia Arreola Feliciano            |        71 | Olga de la O Barajas             |                   3 |
+|        100 | Sonia Arreola Feliciano            |        72 | Francisco Javier Terrazas Soto   |                   3 |
+|        100 | Sonia Arreola Feliciano            |        93 | Gabriel Olvera Fuentes           |                   3 |
++------------+------------------------------------+-----------+----------------------------------+---------------------+
+175 rows in set (0.01 sec)
+
+[\Thu May 22 14:16:55 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:55 2025] (desarrollos_inmobiliarios_db) ~>/*
+   /*> **************************
+   /*> *       CONSULTA 9       *
+   /*> **************************
+   /*> */
+[\Thu May 22 14:16:55 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:55 2025] (desarrollos_inmobiliarios_db) ~>/*¿Cuál es el tiempo minimo,promedio y máximo que han tardado todas las propiedades
+   /*> de la empresa que ya están concluidas en construirse, agrupadas por tipo de desarrollo 
+   /*> y tipo de propiedad?
+   /*> 
+   /*> Esta consulta permite estimar que tanto se tardan en construir las propiedades de
+   /*> acuerdo a su tipo, lo cual puede ayudar a definir si este tiempo es competitivo con 
+   /*> respecto a otras empresas inmobiliarias, así como servir de referencia para estimar 
+   /*> el plazo de construcción en proyectos futuros.*/
+[\Thu May 22 14:16:55 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:55 2025] (desarrollos_inmobiliarios_db) ~>SELECT d.tipo AS tipo_desarrollo,p.tipo AS tipo_propiedad,
+    -> CONCAT(FLOOR(MIN(DATEDIFF(p.fecha_registro, d.fecha_inicio))/365),' años ',
+    ->   FLOOR((MIN(DATEDIFF(p.fecha_registro, d.fecha_inicio)) % 365)/30), ' meses ',
+    ->   ROUND(MIN(DATEDIFF(p.fecha_registro, d.fecha_inicio)) % 30), ' días') AS tiempo_minimo_construccion,
+    -> CONCAT(FLOOR(AVG(DATEDIFF(p.fecha_registro, d.fecha_inicio))/365),' años ',
+    ->   FLOOR((AVG(DATEDIFF(p.fecha_registro, d.fecha_inicio)) % 365)/30), ' meses ',
+    ->   ROUND(AVG(DATEDIFF(p.fecha_registro, d.fecha_inicio)) % 30), ' días') AS tiempo_promedio_construccion,
+    -> CONCAT(FLOOR(MAX(DATEDIFF(p.fecha_registro, d.fecha_inicio))/365),' años ',
+    ->   FLOOR((MAX(DATEDIFF(p.fecha_registro, d.fecha_inicio)) % 365)/30), ' meses ',
+    ->   ROUND(MAX(DATEDIFF(p.fecha_registro, d.fecha_inicio)) % 30), ' días') AS tiempo_maximo_construccion
+    -> FROM desarrollos d
+    -> JOIN propiedades p ON d.id_desarrollo = p.id_desarrollo
+    -> WHERE p.estado != 'En construccion'
+    -> GROUP BY tipo_desarrollo,tipo_propiedad
+    -> ORDER BY AVG(DATEDIFF(p.fecha_registro, d.fecha_inicio));
++-----------------+------------------------+----------------------------+------------------------------+----------------------------+
+| tipo_desarrollo | tipo_propiedad         | tiempo_minimo_construccion | tiempo_promedio_construccion | tiempo_maximo_construccion |
++-----------------+------------------------+----------------------------+------------------------------+----------------------------+
+| Industrial      | Nave Industrial        | 0 años 4 meses 19 días     | 1 años 8 meses 5 días        | 5 años 4 meses 19 días     |
+| Corporativo     | Oficina                | 0 años 4 meses 23 días     | 1 años 9 meses 22 días       | 5 años 2 meses 18 días     |
+| Corporativo     | Hotel Corporativo      | 0 años 3 meses 4 días      | 1 años 9 meses 1 días        | 5 años 5 meses 20 días     |
+| Industrial      | Parque Industrial      | 0 años 2 meses 28 días     | 2 años 0 meses 15 días       | 5 años 0 meses 18 días     |
+| Residencial     | Departamento           | 0 años 5 meses 27 días     | 2 años 0 meses 4 días        | 6 años 4 meses 2 días      |
+| Residencial     | Casa                   | 0 años 3 meses 0 días      | 2 años 1 meses 6 días        | 5 años 7 meses 9 días      |
+| Comercial       | Centro Comercial       | 0 años 3 meses 2 días      | 2 años 2 meses 20 días       | 5 años 10 meses 25 días    |
+| Comercial       | Ancla Comercial        | 0 años 3 meses 2 días      | 2 años 3 meses 11 días       | 6 años 8 meses 25 días     |
+| Comercial       | Local                  | 0 años 3 meses 6 días      | 2 años 3 meses 3 días        | 6 años 9 meses 28 días     |
+| Industrial      | Almacen                | 0 años 5 meses 0 días      | 3 años 1 meses 13 días       | 5 años 11 meses 23 días    |
+| Corporativo     | Vivienda Ejecutiva     | 0 años 10 meses 23 días    | 3 años 4 meses 26 días       | 6 años 9 meses 10 días     |
+| Industrial      | Centro de distribucion | 1 años 1 meses 29 días     | 3 años 7 meses 8 días        | 6 años 0 meses 18 días     |
++-----------------+------------------------+----------------------------+------------------------------+----------------------------+
+12 rows in set (0.01 sec)
+
+[\Thu May 22 14:16:55 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:55 2025] (desarrollos_inmobiliarios_db) ~>/*
+   /*> **************************
+   /*> *      CONSULTA 10       *
+   /*> **************************
+   /*> */
+[\Thu May 22 14:16:55 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:55 2025] (desarrollos_inmobiliarios_db) ~>/*Dada la consulta anterior, ¿Cuáles son las propiedades que la empresa sigue teniendo 
+   /*> en construcción y ya han superado el tiempo promedio de construcción correspondiente a 
+   /*> su tipo de desarrollo y propiedad?
+   /*> 
+   /*> Esta consulta nos permite identificar que propiedades están tardando más de lo esperado,
+   /*> de modo que se pueda evaluar cuáles son los contratiempos que están teniendo dichas propiedades, 
+   /*> y por tanto, buscar soluciones para intentar acelerar el proceso de construcción.*/
+[\Thu May 22 14:16:55 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:55 2025] (desarrollos_inmobiliarios_db) ~>SELECT p.id_propiedad, d.tipo AS tipo_desarrollo, p.tipo AS tipo_propiedad,
+    ->        tiempo_promedio_construccion,
+    ->        CONCAT(TIMESTAMPDIFF(YEAR, d.fecha_inicio, NOW()), ' años ',
+    ->               TIMESTAMPDIFF(MONTH, d.fecha_inicio, NOW()) % 12, ' meses ',
+    ->               DATEDIFF(NOW(), DATE_ADD(DATE_ADD(d.fecha_inicio, 
+    ->                   INTERVAL TIMESTAMPDIFF(YEAR, d.fecha_inicio, NOW()) YEAR),
+    ->                   INTERVAL TIMESTAMPDIFF(MONTH, d.fecha_inicio, NOW()) % 12 MONTH)
+    ->           ), ' días') AS tiempo_construccion_transcurrido
+    -> FROM propiedades p
+    -> JOIN desarrollos d ON p.id_desarrollo = d.id_desarrollo
+    -> JOIN (
+    ->     SELECT d.tipo AS tipo_desarrollo, p.tipo AS tipo_propiedad, 
+    ->            AVG(DATEDIFF(p.fecha_registro, d.fecha_inicio)) AS tiempo_promedio_dias,
+    ->            CONCAT(FLOOR(AVG(DATEDIFF(p.fecha_registro, d.fecha_inicio))/365),' años ',
+    ->               FLOOR((AVG(DATEDIFF(p.fecha_registro, d.fecha_inicio)) % 365)/30), ' meses ',
+    ->               ROUND(AVG(DATEDIFF(p.fecha_registro, d.fecha_inicio)) % 30), ' días') 
+    ->               AS tiempo_promedio_construccion
+    ->     FROM desarrollos d
+    ->     JOIN propiedades p ON d.id_desarrollo = p.id_desarrollo
+    ->     WHERE p.estado != 'En construccion'
+    ->     GROUP BY d.tipo, p.tipo
+    -> ) t ON d.tipo = t.tipo_desarrollo AND p.tipo = t.tipo_propiedad
+    -> WHERE p.estado = 'En construccion'
+    -> AND DATEDIFF(NOW(), d.fecha_inicio) > t.tiempo_promedio_dias
+    -> ORDER BY DATEDIFF(NOW(), d.fecha_inicio) DESC;
++--------------+-----------------+------------------------+------------------------------+----------------------------------+
+| id_propiedad | tipo_desarrollo | tipo_propiedad         | tiempo_promedio_construccion | tiempo_construccion_transcurrido |
++--------------+-----------------+------------------------+------------------------------+----------------------------------+
+|          236 | Residencial     | Casa                   | 2 años 1 meses 6 días        | 7 años 4 meses 10 días           |
+|          144 | Residencial     | Casa                   | 2 años 1 meses 6 días        | 7 años 4 meses 10 días           |
+|          387 | Residencial     | Casa                   | 2 años 1 meses 6 días        | 7 años 4 meses 10 días           |
+|          180 | Residencial     | Casa                   | 2 años 1 meses 6 días        | 7 años 4 meses 10 días           |
+|          181 | Corporativo     | Vivienda Ejecutiva     | 3 años 4 meses 26 días       | 7 años 4 meses 10 días           |
+|          316 | Residencial     | Casa                   | 2 años 1 meses 6 días        | 7 años 4 meses 10 días           |
+|           25 | Comercial       | Local                  | 2 años 3 meses 3 días        | 7 años 4 meses 2 días            |
+|          486 | Comercial       | Local                  | 2 años 3 meses 3 días        | 7 años 4 meses 2 días            |
+|          360 | Comercial       | Centro Comercial       | 2 años 2 meses 20 días       | 7 años 4 meses 2 días            |
+|          107 | Industrial      | Almacen                | 3 años 1 meses 13 días       | 7 años 3 meses 7 días            |
+|          141 | Industrial      | Almacen                | 3 años 1 meses 13 días       | 7 años 2 meses 14 días           |
+|          499 | Comercial       | Local                  | 2 años 3 meses 3 días        | 7 años 1 meses 26 días           |
+|          281 | Comercial       | Centro Comercial       | 2 años 2 meses 20 días       | 7 años 1 meses 26 días           |
+|           31 | Residencial     | Departamento           | 2 años 0 meses 4 días        | 7 años 1 meses 25 días           |
+|          304 | Comercial       | Centro Comercial       | 2 años 2 meses 20 días       | 7 años 0 meses 17 días           |
+|          327 | Industrial      | Centro de distribucion | 3 años 7 meses 8 días        | 7 años 0 meses 15 días           |
+|          154 | Industrial      | Centro de distribucion | 3 años 7 meses 8 días        | 7 años 0 meses 15 días           |
+|          225 | Industrial      | Parque Industrial      | 2 años 0 meses 15 días       | 6 años 11 meses 23 días          |
+|          217 | Comercial       | Ancla Comercial        | 2 años 3 meses 11 días       | 6 años 9 meses 4 días            |
+|          232 | Industrial      | Centro de distribucion | 3 años 7 meses 8 días        | 6 años 6 meses 14 días           |
+|           58 | Industrial      | Centro de distribucion | 3 años 7 meses 8 días        | 6 años 6 meses 14 días           |
+|          250 | Industrial      | Centro de distribucion | 3 años 7 meses 8 días        | 6 años 6 meses 14 días           |
+|          176 | Comercial       | Local                  | 2 años 3 meses 3 días        | 6 años 5 meses 18 días           |
+|          379 | Comercial       | Local                  | 2 años 3 meses 3 días        | 6 años 5 meses 18 días           |
+|          156 | Comercial       | Centro Comercial       | 2 años 2 meses 20 días       | 6 años 5 meses 18 días           |
+|          189 | Comercial       | Centro Comercial       | 2 años 2 meses 20 días       | 6 años 5 meses 18 días           |
+|          388 | Residencial     | Departamento           | 2 años 0 meses 4 días        | 6 años 5 meses 7 días            |
+|            4 | Comercial       | Local                  | 2 años 3 meses 3 días        | 6 años 2 meses 28 días           |
+|           61 | Comercial       | Local                  | 2 años 3 meses 3 días        | 6 años 2 meses 28 días           |
+|          383 | Comercial       | Ancla Comercial        | 2 años 3 meses 11 días       | 6 años 2 meses 28 días           |
+|          177 | Industrial      | Parque Industrial      | 2 años 0 meses 15 días       | 6 años 0 meses 20 días           |
+|          400 | Industrial      | Parque Industrial      | 2 años 0 meses 15 días       | 6 años 0 meses 20 días           |
+|          368 | Industrial      | Parque Industrial      | 2 años 0 meses 15 días       | 6 años 0 meses 20 días           |
+|          211 | Comercial       | Centro Comercial       | 2 años 2 meses 20 días       | 5 años 11 meses 19 días          |
+|          473 | Corporativo     | Oficina                | 1 años 9 meses 22 días       | 5 años 11 meses 4 días           |
+|           66 | Corporativo     | Hotel Corporativo      | 1 años 9 meses 1 días        | 5 años 9 meses 21 días           |
+|          256 | Corporativo     | Hotel Corporativo      | 1 años 9 meses 1 días        | 5 años 9 meses 21 días           |
+|          319 | Corporativo     | Vivienda Ejecutiva     | 3 años 4 meses 26 días       | 5 años 9 meses 9 días            |
+|          274 | Corporativo     | Vivienda Ejecutiva     | 3 años 4 meses 26 días       | 5 años 9 meses 9 días            |
+|          478 | Industrial      | Centro de distribucion | 3 años 7 meses 8 días        | 5 años 8 meses 5 días            |
+|          351 | Industrial      | Nave Industrial        | 1 años 8 meses 5 días        | 5 años 7 meses 29 días           |
+|          234 | Corporativo     | Oficina                | 1 años 9 meses 22 días       | 5 años 7 meses 8 días            |
+|          230 | Residencial     | Departamento           | 2 años 0 meses 4 días        | 5 años 7 meses 8 días            |
+|          302 | Residencial     | Departamento           | 2 años 0 meses 4 días        | 5 años 7 meses 7 días            |
+|          155 | Residencial     | Departamento           | 2 años 0 meses 4 días        | 5 años 7 meses 7 días            |
+|          202 | Residencial     | Departamento           | 2 años 0 meses 4 días        | 5 años 7 meses 7 días            |
+|          407 | Residencial     | Casa                   | 2 años 1 meses 6 días        | 5 años 7 meses 5 días            |
+|           45 | Comercial       | Local                  | 2 años 3 meses 3 días        | 5 años 4 meses 11 días           |
+|           48 | Comercial       | Ancla Comercial        | 2 años 3 meses 11 días       | 5 años 4 meses 11 días           |
+|          436 | Comercial       | Ancla Comercial        | 2 años 3 meses 11 días       | 5 años 3 meses 7 días            |
+|          139 | Comercial       | Ancla Comercial        | 2 años 3 meses 11 días       | 5 años 3 meses 7 días            |
+|          261 | Comercial       | Centro Comercial       | 2 años 2 meses 20 días       | 5 años 2 meses 28 días           |
+|          317 | Corporativo     | Vivienda Ejecutiva     | 3 años 4 meses 26 días       | 5 años 2 meses 7 días            |
+|          321 | Residencial     | Departamento           | 2 años 0 meses 4 días        | 5 años 0 meses 24 días           |
+|          475 | Residencial     | Casa                   | 2 años 1 meses 6 días        | 5 años 0 meses 19 días           |
+|          238 | Corporativo     | Hotel Corporativo      | 1 años 9 meses 1 días        | 4 años 11 meses 28 días          |
+|          353 | Corporativo     | Oficina                | 1 años 9 meses 22 días       | 4 años 9 meses 22 días           |
+|          471 | Corporativo     | Oficina                | 1 años 9 meses 22 días       | 4 años 9 meses 22 días           |
+|           84 | Comercial       | Centro Comercial       | 2 años 2 meses 20 días       | 4 años 9 meses 3 días            |
+|           27 | Residencial     | Casa                   | 2 años 1 meses 6 días        | 4 años 8 meses 28 días           |
+|          446 | Residencial     | Casa                   | 2 años 1 meses 6 días        | 4 años 8 meses 28 días           |
+|          231 | Residencial     | Casa                   | 2 años 1 meses 6 días        | 4 años 8 meses 28 días           |
+|          184 | Residencial     | Casa                   | 2 años 1 meses 6 días        | 4 años 8 meses 28 días           |
+|          408 | Comercial       | Centro Comercial       | 2 años 2 meses 20 días       | 4 años 8 meses 21 días           |
+|           52 | Comercial       | Centro Comercial       | 2 años 2 meses 20 días       | 4 años 8 meses 21 días           |
+|          294 | Corporativo     | Oficina                | 1 años 9 meses 22 días       | 4 años 7 meses 27 días           |
+|          191 | Corporativo     | Oficina                | 1 años 9 meses 22 días       | 4 años 7 meses 27 días           |
+|          241 | Corporativo     | Oficina                | 1 años 9 meses 22 días       | 4 años 6 meses 21 días           |
+|          168 | Corporativo     | Hotel Corporativo      | 1 años 9 meses 1 días        | 4 años 6 meses 7 días            |
+|           92 | Residencial     | Departamento           | 2 años 0 meses 4 días        | 4 años 4 meses 27 días           |
+|          447 | Residencial     | Departamento           | 2 años 0 meses 4 días        | 4 años 4 meses 27 días           |
+|          255 | Industrial      | Parque Industrial      | 2 años 0 meses 15 días       | 4 años 3 meses 11 días           |
+|           87 | Industrial      | Parque Industrial      | 2 años 0 meses 15 días       | 4 años 3 meses 11 días           |
+|          320 | Comercial       | Centro Comercial       | 2 años 2 meses 20 días       | 4 años 0 meses 15 días           |
+|          341 | Comercial       | Local                  | 2 años 3 meses 3 días        | 4 años 0 meses 15 días           |
+|          216 | Residencial     | Departamento           | 2 años 0 meses 4 días        | 3 años 9 meses 25 días           |
+|          497 | Residencial     | Departamento           | 2 años 0 meses 4 días        | 3 años 9 meses 25 días           |
+|          500 | Industrial      | Almacen                | 3 años 1 meses 13 días       | 3 años 9 meses 8 días            |
+|          338 | Industrial      | Almacen                | 3 años 1 meses 13 días       | 3 años 9 meses 8 días            |
+|          284 | Comercial       | Ancla Comercial        | 2 años 3 meses 11 días       | 3 años 7 meses 16 días           |
+|           46 | Industrial      | Nave Industrial        | 1 años 8 meses 5 días        | 3 años 7 meses 13 días           |
+|           94 | Residencial     | Departamento           | 2 años 0 meses 4 días        | 3 años 5 meses 13 días           |
+|          402 | Residencial     | Departamento           | 2 años 0 meses 4 días        | 3 años 5 meses 13 días           |
+|          243 | Residencial     | Casa                   | 2 años 1 meses 6 días        | 3 años 4 meses 13 días           |
+|          465 | Comercial       | Local                  | 2 años 3 meses 3 días        | 3 años 2 meses 19 días           |
+|           10 | Corporativo     | Oficina                | 1 años 9 meses 22 días       | 3 años 2 meses 13 días           |
+|          108 | Comercial       | Centro Comercial       | 2 años 2 meses 20 días       | 3 años 2 meses 9 días            |
+|          123 | Corporativo     | Oficina                | 1 años 9 meses 22 días       | 3 años 0 meses 12 días           |
+|          161 | Corporativo     | Oficina                | 1 años 9 meses 22 días       | 2 años 9 meses 1 días            |
+|          455 | Residencial     | Departamento           | 2 años 0 meses 4 días        | 2 años 6 meses 14 días           |
+|          413 | Industrial      | Nave Industrial        | 1 años 8 meses 5 días        | 2 años 3 meses 21 días           |
+|          174 | Industrial      | Nave Industrial        | 1 años 8 meses 5 días        | 2 años 3 meses 21 días           |
+|          440 | Industrial      | Nave Industrial        | 1 años 8 meses 5 días        | 2 años 3 meses 21 días           |
+|          262 | Industrial      | Nave Industrial        | 1 años 8 meses 5 días        | 2 años 2 meses 16 días           |
+|          381 | Industrial      | Nave Industrial        | 1 años 8 meses 5 días        | 2 años 2 meses 16 días           |
+|          127 | Industrial      | Nave Industrial        | 1 años 8 meses 5 días        | 1 años 11 meses 17 días          |
++--------------+-----------------+------------------------+------------------------------+----------------------------------+
+96 rows in set (0.01 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>/*
+   /*> **************************
+   /*> *        FUNCION         *
+   /*> **************************
+   /*> */
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>/*Función que devuelve la información acerca del cliente y los contratos que 
+   /*> tiene con la empresa, el precio final pactado en el contrato, 
+   /*> así como el monto que se ha pagado hasta hoy por contrato*/
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>DROP FUNCTION IF EXISTS resumen_cliente;
+Query OK, 0 rows affected (0.03 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>DELIMITER //
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>CREATE FUNCTION resumen_cliente(id_cliente INT) 
+    -> RETURNS TEXT
+    -> READS SQL DATA DETERMINISTIC
+    -> BEGIN
+    ->     DECLARE info_cliente TEXT;
+    -> 
+    ->     SELECT CONCAT('Nombre Completo: ',CONCAT_WS(' ',cl.nombre,cl.apellido_paterno,cl.apellido_materno),'\n',
+    ->                   '  Fecha de nacimiento: ',cl.fecha_nacimiento,'\n',
+    ->                   '  Correo: ',cl.correo,'\n',
+    ->                   '  Telefono: ',cl.telefono,'\n',
+    ->                   '  Contratos:\n',
+    ->                     IFNULL(GROUP_CONCAT(CONCAT(
+    ->                     '  ID Contrato: ', info.id_contrato,
+    ->                     ', Precio Final: $', FORMAT(info.precio_final, 2),
+    ->                     ', Monto Pagado: $', FORMAT(info.total_pagado, 2)
+    ->                 ) SEPARATOR '\n'), '  Sin contratos')) 
+    ->     INTO info_cliente
+    ->     FROM clientes cl
+    ->     LEFT JOIN (
+    ->         SELECT c.id_cliente,c.id_contrato,c.precio_final,COALESCE(SUM(p.monto), 0) AS total_pagado
+    ->         FROM contratos c
+    ->         LEFT JOIN pagos p ON c.id_contrato = p.id_contrato
+    ->         GROUP BY c.id_cliente, c.id_contrato
+    ->     ) info 
+    ->     ON cl.id_cliente = info.id_cliente
+    ->     WHERE cl.id_cliente = id_cliente
+    ->     GROUP BY cl.id_cliente;
+    -> 
+    ->     RETURN info_cliente;
+    -> END //
+Query OK, 0 rows affected (0.01 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>DELIMITER ;
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>/*Ejemplos de uso de la FUNCION*/
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>SELECT resumen_cliente(2);
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| resumen_cliente(2)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Nombre Completo: Carlos Pantoja Olmos
+  Fecha de nacimiento: 1997-08-16
+  Correo: carlos.pantoja01@example.com
+  Telefono: 5521693036
+  Contratos:
+  ID Contrato: 22, Precio Final: $8,762,621.44, Monto Pagado: $259,013.86
+  ID Contrato: 29, Precio Final: $5,921,776.67, Monto Pagado: $5,921,776.67
+  ID Contrato: 55, Precio Final: $5,356,235.52, Monto Pagado: $5,356,235.52
+  ID Contrato: 76, Precio Final: $9,669,061.25, Monto Pagado: $130,335.62
+  ID Contrato: 156, Precio Final: $9,966,721.67, Monto Pagado: $71,541.01
+  ID Contrato: 224, Precio Final: $9,979,872.95, Monto Pagado: $9,979,872.95 |
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.01 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>SELECT resumen_cliente(23);
++------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| resumen_cliente(23)                                                                                                                                              |
++------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Nombre Completo: René Pelayo Gaitán
+  Fecha de nacimiento: 1976-03-07
+  Correo: rené.pelayo22@example.com
+  Telefono: 5518618720
+  Contratos:
+  Sin contratos    |
++------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.01 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>/*
+   /*> ******************************
+   /*> *  PROCEDIMIENTO ALMACENADO  *
+   /*> ******************************
+   /*> */
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>/*Procedimiento almacenado que permite insertar pagos, registrando de manera
+   /*> automática el número de pago, y asegurando que dicho pago, junto con la suma
+   /*> de los pagos anteriores no excedan la deuda que se tiene pendiente en el
+   /*> respectivo contrato.*/
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>DROP PROCEDURE IF EXISTS registrar_pago;
+Query OK, 0 rows affected (0.01 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>DELIMITER $$
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>CREATE PROCEDURE registrar_pago(
+    ->     IN p_id_contrato INT, 
+    ->     IN p_fecha DATE, 
+    ->     IN p_monto DECIMAL(15,2), 
+    ->     IN p_metodo VARCHAR(50)
+    -> )
+    -> BEGIN
+    ->     DECLARE total_pagado DECIMAL(15,2);
+    ->     DECLARE nuevo_num_pago INT;
+    -> 
+    ->     SELECT IFNULL(SUM(monto), 0) INTO total_pagado
+    ->     FROM pagos 
+    ->     WHERE id_contrato = p_id_contrato;
+    -> 
+    ->     IF total_pagado + p_monto <= (SELECT precio_final 
+    ->                                   FROM contratos 
+    ->                                   WHERE id_contrato = p_id_contrato) 
+    ->     THEN
+    ->         SELECT IFNULL(MAX(num_pago), 0) + 1 INTO nuevo_num_pago
+    ->         FROM pagos 
+    ->         WHERE id_contrato = p_id_contrato;
+    -> 
+    ->         INSERT INTO pagos(num_pago, id_contrato, fecha_pago, monto, metodo_pago)
+    ->         VALUES (nuevo_num_pago, p_id_contrato, p_fecha, p_monto, p_metodo);
+    ->     ELSE
+    ->         SIGNAL SQLSTATE '45000'
+    ->         SET MESSAGE_TEXT = 'El pago excede el monto faltante del contrato.';
+    ->     END IF;
+    -> END $$
+Query OK, 0 rows affected (0.01 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>DELIMITER ;
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>/*Ejemplo de uso del PROCEDIMIENTO ALMACENADO*/
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- informacion de pagos del contrato 92
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>SELECT * 
+    -> FROM pagos 
+    -> WHERE id_contrato = 92;
++----------+-------------+------------+----------+-------------+
+| num_pago | id_contrato | fecha_pago | monto    | metodo_pago |
++----------+-------------+------------+----------+-------------+
+|        1 |          92 | 2025-01-31 | 91813.68 | Efectivo    |
+|        2 |          92 | 2025-03-02 | 49570.20 | Efectivo    |
+|        3 |          92 | 2025-04-01 | 44964.45 | Tarjeta     |
+|        4 |          92 | 2025-05-01 | 13436.69 | Tarjeta     |
++----------+-------------+------------+----------+-------------+
+4 rows in set (0.00 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- monto faltante
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>SELECT (c.precio_final - SUM(p.monto)) AS monto_faltante
+    -> FROM pagos p JOIN contratos c ON p.id_contrato = c.id_contrato
+    -> WHERE c.id_contrato = 92;
++----------------+
+| monto_faltante |
++----------------+
+|     3844989.72 |
++----------------+
+1 row in set (0.00 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- insertamos un monto válido (no excede el monto faltante)
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>CALL registrar_pago(92, '2025-06-01', 50000.00, 'Transferencia');
+Query OK, 1 row affected (0.01 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- información de pagos del contrato 92 actualizada
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>SELECT * 
+    -> FROM pagos 
+    -> WHERE id_contrato = 92;
++----------+-------------+------------+----------+---------------+
+| num_pago | id_contrato | fecha_pago | monto    | metodo_pago   |
++----------+-------------+------------+----------+---------------+
+|        1 |          92 | 2025-01-31 | 91813.68 | Efectivo      |
+|        2 |          92 | 2025-03-02 | 49570.20 | Efectivo      |
+|        3 |          92 | 2025-04-01 | 44964.45 | Tarjeta       |
+|        4 |          92 | 2025-05-01 | 13436.69 | Tarjeta       |
+|        5 |          92 | 2025-06-01 | 50000.00 | Transferencia |
++----------+-------------+------------+----------+---------------+
+5 rows in set (0.00 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- monto faltante actualizado
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>SELECT (c.precio_final - SUM(p.monto)) AS monto_faltante
+    -> FROM pagos p JOIN contratos c ON p.id_contrato = c.id_contrato
+    -> WHERE c.id_contrato = 92;
++----------------+
+| monto_faltante |
++----------------+
+|     3794989.72 |
++----------------+
+1 row in set (0.00 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- tratamos de insertar un monto no válido (excede el monto faltante)
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>CALL registrar_pago(92, '2025-06-01', 4000000.00, 'Transferencia');
+ERROR 1644 (45000): El pago excede el monto faltante del contrato.
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>/*
+   /*> **************************
+   /*> *        TRIGGER         *
+   /*> **************************
+   /*> */
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>/*Trigger que verifica si al crear un nuevo contrato la propiedad 
+   /*> relacionada está Disponible, y si es así, entonces actualiza el estado
+   /*> de la propiedad a Vendida o Rentada según sea el tipo de contrato.*/
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>DROP TRIGGER IF EXISTS verificar_y_actualizar_propiedad;
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>DELIMITER %%
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>CREATE TRIGGER verificar_y_actualizar_propiedad
+    -> BEFORE INSERT ON contratos
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     DECLARE estado_actual VARCHAR(50);
+    -> 
+    ->     SELECT estado INTO estado_actual
+    ->     FROM propiedades
+    ->     WHERE id_propiedad = NEW.id_propiedad;
+    -> 
+    ->     IF estado_actual != 'Disponible' THEN
+    ->         SIGNAL SQLSTATE '45000'
+    ->         SET MESSAGE_TEXT = 'Error: La propiedad no está disponible.';
+    ->     END IF;
+    -> 
+    ->     IF NEW.tipo = 'Venta' THEN
+    ->         UPDATE propiedades
+    ->         SET estado = 'Vendida'
+    ->         WHERE id_propiedad = NEW.id_propiedad;
+    ->     ELSEIF NEW.tipo = 'Renta' THEN
+    ->         UPDATE propiedades
+    ->         SET estado = 'Rentada'
+    ->         WHERE id_propiedad = NEW.id_propiedad;
+    ->     END IF;
+    -> END %%
+Query OK, 0 rows affected (0.01 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>DELIMITER ;
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>/*Ejemplo de uso del TRIGGER*/
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- Verificamos el estado de la propiedad 451 (Disponible)
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>SELECT id_propiedad,estado
+    -> FROM propiedades
+    -> WHERE id_propiedad = 451;
++--------------+------------+
+| id_propiedad | estado     |
++--------------+------------+
+|          451 | Disponible |
++--------------+------------+
+1 row in set (0.00 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- Se inserta un contrato para esa propiedad de Renta
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>INSERT INTO contratos (id_propiedad,id_agente,id_cliente,tipo,fecha_contrato,precio_final,forma_pago,condiciones_contractuales) VALUES
+    -> (451,73,99,'Renta','2025-05-10',9500000.00,'Pagos periodicos','El arrendatario no podrá subarrendar sin consentimiento por escrito.');
+Query OK, 1 row affected (0.01 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- Verificamos nuevamente el estado de la propiedad 451 (Rentada)
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>SELECT id_propiedad,estado
+    -> FROM propiedades
+    -> WHERE id_propiedad = 451;
++--------------+---------+
+| id_propiedad | estado  |
++--------------+---------+
+|          451 | Rentada |
++--------------+---------+
+1 row in set (0.00 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- Tratamos de insertar un contrato para esa propiedad nuevamente
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>INSERT INTO contratos (id_propiedad,id_agente,id_cliente,tipo,fecha_contrato,precio_final,forma_pago,condiciones_contractuales) VALUES
+    -> (451,12,77,'Renta','2025-05-11',8750500.00,'Pago Unico','El arrendatario no podrá subarrendar sin consentimiento por escrito.');
+ERROR 1644 (45000): Error: La propiedad no está disponible.
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- Verificamos el estado de la propiedad 212 (Disponible)
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>SELECT id_propiedad,estado
+    -> FROM propiedades
+    -> WHERE id_propiedad = 212;
++--------------+------------+
+| id_propiedad | estado     |
++--------------+------------+
+|          212 | Disponible |
++--------------+------------+
+1 row in set (0.00 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- Se inserta un contrato para esa propiedad de Venta
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>INSERT INTO contratos (id_propiedad,id_agente,id_cliente,tipo,fecha_contrato,precio_final,forma_pago,condiciones_contractuales) VALUES
+    -> (212,40,65,'Venta','2025-05-12',7000000.00,'Pagos periodicos','Contrato vigente por 12 meses con opción a renovación.');
+Query OK, 1 row affected (0.01 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- Verificamos nuevamente el estado de la propiedad 212 (Vendida)
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>SELECT id_propiedad,estado
+    -> FROM propiedades
+    -> WHERE id_propiedad = 212;
++--------------+---------+
+| id_propiedad | estado  |
++--------------+---------+
+|          212 | Vendida |
++--------------+---------+
+1 row in set (0.00 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- Tratamos de insertar un contrato para esa propiedad nuevamente
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>INSERT INTO contratos (id_propiedad,id_agente,id_cliente,tipo,fecha_contrato,precio_final,forma_pago,condiciones_contractuales) VALUES
+    -> (212,5,39,'Venta','2025-05-13',2560010.00,'Pagos periodicos','Contrato vigente por 12 meses con opción a renovación.');
+ERROR 1644 (45000): Error: La propiedad no está disponible.
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- Verificamos el estado de la propiedad 10 (En construccion)
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>SELECT id_propiedad,estado
+    -> FROM propiedades
+    -> WHERE id_propiedad = 10;
++--------------+-----------------+
+| id_propiedad | estado          |
++--------------+-----------------+
+|           10 | En construccion |
++--------------+-----------------+
+1 row in set (0.00 sec)
+
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>-- Tratamos de insertar un contrato para esa propiedad
+[\Thu May 22 14:16:56 2025] (desarrollos_inmobiliarios_db) ~>INSERT INTO contratos (id_propiedad,id_agente,id_cliente,tipo,fecha_contrato,precio_final,forma_pago,condiciones_contractuales) VALUES
+    -> (10,25,42,'Venta','2025-05-15',1900000,'Pago Unico','El comprador se compromete a pagar el total en un plazo no mayor a 30 días.');
+ERROR 1644 (45000): Error: La propiedad no está disponible.
+[\Thu May 22 14:16:57 2025] (desarrollos_inmobiliarios_db) ~>notee
