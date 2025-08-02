@@ -37,3 +37,11 @@ Adicionalmente, se incluyó:
 * Una función que devuelve la información acerca del cliente y los contratos que tiene con la empresa, el precio final pactado en el contrato, así como el monto que se ha pagado hasta hoy por contrato.
 * Un procedimiento almacenado que permite insertar pagos, registrando de manera automática el número de pago, y asegurando que dicho pago, junto con la suma de los pagos anteriores no excedan la deuda que se tiene pendiente en el respectivo contrato.
 * Un disparador que verifica si al crear un nuevo contrato la propiedad relacionada está Disponible, y si es así, entonces actualiza el estado de la propiedad a Vendida o Rentada según sea el tipo de contrato.
+
+# Sobre los archivos del repositorio
+| Archivo                                                  | Descripción                                                                                                      |
+|----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
+| `DER/DER.pdf`                                            | Diagrama Entidad-Relación de la base de datos                                                                    |
+| `creacion e insercion/creacion_e_insercion.sql`          | Archivo SQL para crear la base de datos, crear las tablas y poblar la base de datos                              |
+| `consultas y funciones/consultas_y_funciones.sql`        | Archivo SQL para realizar las consultas y agregar las funciones, procedimientos almacenados y disparadores       |
+| `consultas y funciones/ejecucion consultas y funciones`  | Archivo de texto que muestra la ejecución y los resultados de las consultas del archivo consultas_y_funciones.sql|            
