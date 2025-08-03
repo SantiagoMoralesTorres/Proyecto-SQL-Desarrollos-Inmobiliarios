@@ -18,7 +18,7 @@ La base de datos corresponde a los registros de los inmuebles y las distintas op
 ## Objetivos
 * Diseñar una base de datos bien estructurada y normalizada que permita llevar el control de los inmuebles y operaciones de la empresa, usando un diagrama entidad-relación.
 * Implementar el diseño del diagrama entidad-relación en SQL, estableciendo correctamente el tipo de datos y las relaciones entre tablas así como las restricciones adecuadas para mantener la consistencia de la base de datos, y poblar la base de datos con registros reales y consistentes.
-* Realizar consultas que permitan obtener insigths sobre las tendencias de compra/venta de los inmuebles, clientes potenciales, agentes inmobiliarios efectivos, estado de las propiedades, etc., así como implementar funciones, procedimientos almacenados y disparadores que permitan automatizar procesos.
+* Realizar consultas que permitan obtener insights sobre las tendencias de compra/venta de los inmuebles, clientes potenciales, agentes inmobiliarios efectivos, estado de las propiedades, etc., así como implementar funciones, procedimientos almacenados y disparadores que permitan automatizar procesos.
 
 ## Resultados
 Se realizaron las siguientes consultas:
